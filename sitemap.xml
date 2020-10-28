@@ -2,9 +2,23 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://123wuyujuan.github.io/uncategorized/DNS%E6%94%BB%E5%87%BB/</loc>
+    
+    <lastmod>2020-10-28</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://123wuyujuan.github.io/uncategorized/ant-design%20vue%20%E6%8F%92%E6%A7%BD%E4%BD%BF%E7%94%A8/</loc>
     
-    <lastmod>2020-10-20</lastmod>
+    <lastmod>2020-10-28</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://123wuyujuan.github.io/uncategorized/web%E5%AE%89%E5%85%A8/</loc>
+    
+    <lastmod>2020-10-27</lastmod>
     
   </url>
   
@@ -53,36 +67,57 @@
 
   <url>
     <loc>https://123wuyujuan.github.io/</loc>
-    <lastmod>2020-10-20</lastmod>
+    <lastmod>2020-10-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   
   <url>
+    <loc>https://123wuyujuan.github.io/tags/DNS/</loc>
+    <lastmod>2020-10-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://123wuyujuan.github.io/tags/DDos/</loc>
+    <lastmod>2020-10-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://123wuyujuan.github.io/tags/Web%E5%AE%89%E5%85%A8/</loc>
+    <lastmod>2020-10-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://123wuyujuan.github.io/tags/JavaScript/</loc>
-    <lastmod>2020-10-20</lastmod>
+    <lastmod>2020-10-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://123wuyujuan.github.io/tags/vue/</loc>
-    <lastmod>2020-10-20</lastmod>
+    <lastmod>2020-10-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://123wuyujuan.github.io/tags/hexo/</loc>
-    <lastmod>2020-10-20</lastmod>
+    <lastmod>2020-10-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://123wuyujuan.github.io/tags/test/</loc>
-    <lastmod>2020-10-20</lastmod>
+    <lastmod>2020-10-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>

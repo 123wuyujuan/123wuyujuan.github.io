@@ -1095,7 +1095,6 @@ img {
 @media (min-width: 768px) {
   .jumbotron {
     margin-bottom: 6rem;
-    display: block;
   }
   .content {
     margin-right: 10rem;
@@ -1120,11 +1119,6 @@ img {
 @media (min-width: 1200px) {
   .tocbot {
     display: block;
-  }
-}
-@media (max-width: 768px) {
-  .jumbotron {
-    display: none;
   }
 }
 .list-unstyled,
@@ -1920,27 +1914,6 @@ a.toc-link {
 .page-type-title {
   margin: 0;
   padding: 3rem 0;
-}
-@media screen and (max-width: 768px) {
-  .page-type-title.pc {
-    display: none;
-  }
-}
-@media screen and (min-width: 768px) {
-  .page-type-title.pc {
-    display: block;
-  }
-}
-@media screen and (max-width: 768px) {
-  .page-type-title.mobile {
-    display: block;
-    font-family: 'STXingkai';
-  }
-}
-@media screen and (min-width: 768px) {
-  .page-type-title.mobile {
-    display: none;
-  }
 }
 .page-nav {
   margin: 3rem auto;

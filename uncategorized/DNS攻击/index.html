@@ -9,7 +9,6 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>
-    Hello World |
     
     唐泽雪穗</title>
   
@@ -32,29 +31,15 @@
 <body>
 <main class="content">
   <section class="outer">
-  <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+  <article id="post-DNS攻击" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
 
     <div class="article-inner">
         
-            <header class="article-header">
-                
-  
-    <h1 class="article-title" itemprop="name">
-      Hello World
-    </h1>
-  
-  
-
-
-
-
-            </header>
-            
 
                 
                     <div class="article-meta">
-                        <a href="/uncategorized/hello-world/" class="article-date">
-  <time datetime="2020-10-10T06:48:50.423Z" itemprop="datePublished">2020-10-10</time>
+                        <a href="/uncategorized/DNS%E6%94%BB%E5%87%BB/" class="article-date">
+  <time datetime="2020-10-28T04:16:38.000Z" itemprop="datePublished">2020-10-28</time>
 </a>
                             
                     </div>
@@ -77,28 +62,44 @@
                                             
 
                                                 
-                                                                    <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-<p>good luck!</p>
-
+                                                                    <h3 id="DNS-request-Flood-攻击"><a href="#DNS-request-Flood-攻击" class="headerlink" title="DNS request Flood 攻击"></a>DNS request Flood 攻击</h3><h3 id="DNS-Reply-Flood-攻击"><a href="#DNS-Reply-Flood-攻击" class="headerlink" title="DNS Reply Flood 攻击"></a>DNS Reply Flood 攻击</h3><p>DNS 查询通常基于 UDP 协议，而 UDP 协议是无连接的，当 DNS 服务器收到 DNS reply报文时，不管自己有没有发出过解析请求，都会对 DNS reply 报文进行处理。DNS Reply Flood 就是黑客发送大量 DNS reply 报文给 DNS 服务器，导致消耗大量缓存服务器资源，无法正常解析 DNS 授权服务器发送的 DNS reply报文。</p>
+<ul>
+<li><h4 id="源认证"><a href="#源认证" class="headerlink" title="源认证"></a>源认证</h4><p>DNS Reply Flood 的源 IP 地址通常是伪造的，所以可以通过判断源 IP 地址的真假来防范攻击。这种方式通过构造一个 DNS request报文进行认证。</p>
+<ul>
+<li>DNS reply 报文超过阈值，收到 DNS reply 报文后会重新构造一个 DNS request 报文，并记录构造查询报文的Query ID和源端口号。</li>
+<li>如果是真实源，则会回应 DNS reply 报文，如果与之前记录的 Query ID 和源端口号匹配成功，则加入白名单，认证成功。之后发送的报文直接通过。</li>
+<li>如果是虚假源，则不会回应这个 DNS request 报文，认证不通过。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://forum.huawei.com/huaweiconnect/data/attachment/forum/201801/29/20180129110247726.png" alt="20180129110247726.png"></p>
+<ul>
+<li><p>DNS 反射攻击</p>
+<p>一种更高级的 DNS Reply Flood，攻击目标是客户端而不是 DNS 缓存服务器，并且 DNS 请求是真实的</p>
+<ul>
+<li><h4 id="会话检查"><a href="#会话检查" class="headerlink" title="会话检查"></a>会话检查</h4><p>利用防火墙的会话表机制，DNS 交互过程中，DNS request 报文首包建立会话，保存五元组信息。当收到 DNS reply 报文时，匹配会话表，如果命中才允许通过。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="利用限速防范-DNS-Request-Flood-和-DNS-reply攻击"><a href="#利用限速防范-DNS-Request-Flood-和-DNS-reply攻击" class="headerlink" title="利用限速防范 DNS Request Flood 和 DNS reply攻击"></a>利用限速防范 DNS Request Flood 和 DNS reply攻击</h3><ul>
+<li><p>域名限速</p>
+<p>如果某个域名的DNS请求或回应报文速率过高，可以针对这个域名进行限速。</p>
+</li>
+<li><p>源 IP 地址限速</p>
+<p>如果某个源IP地址域名解析的速率过大，就可以有针对性的对这个源IP地址进行限制，这样也不会对其他源有影响。</p>
+</li>
+</ul>
+<h3 id="DNS-缓存投毒攻击"><a href="#DNS-缓存投毒攻击" class="headerlink" title="DNS 缓存投毒攻击"></a>DNS 缓存投毒攻击</h3>
                                                                         
                                     </div>
                                     <footer class="article-footer">
-                                        <a data-url="https://123wuyujuan.github.io/uncategorized/hello-world/" data-id="ckgsw57ef0006q0sfh3x76wy2" class="article-share-link">
+                                        <a data-url="https://123wuyujuan.github.io/uncategorized/DNS%E6%94%BB%E5%87%BB/" data-id="ckgsw57e60001q0sf3oncfnrr" class="article-share-link">
                                             Share
                                         </a>
                                         
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DDos/" rel="tag">DDos</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DNS/" rel="tag">DNS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web%E5%AE%89%E5%85%A8/" rel="tag">Web安全</a></li></ul>
+
                                     </footer>
 
     </div>
@@ -107,15 +108,11 @@
         
   <nav class="article-nav">
     
-      <a href="/uncategorized/newpaper/" class="article-nav-link">
-        <strong class="article-nav-caption">Newer</strong>
-        <div class="article-nav-title">
-          
-            newpaper
-          
-        </div>
-      </a>
     
+      <a href="/uncategorized/web%E5%AE%89%E5%85%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title"></div>
+      </a>
     
   </nav>
 

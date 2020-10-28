@@ -1,6 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title></title>
+    <url>/uncategorized/DNS%E6%94%BB%E5%87%BB/</url>
+    <content><![CDATA[<h3 id="DNS-request-Flood-攻击"><a href="#DNS-request-Flood-攻击" class="headerlink" title="DNS request Flood 攻击"></a>DNS request Flood 攻击</h3><h3 id="DNS-Reply-Flood-攻击"><a href="#DNS-Reply-Flood-攻击" class="headerlink" title="DNS Reply Flood 攻击"></a>DNS Reply Flood 攻击</h3><p>DNS 查询通常基于 UDP 协议，而 UDP 协议是无连接的，当 DNS 服务器收到 DNS reply报文时，不管自己有没有发出过解析请求，都会对 DNS reply 报文进行处理。DNS Reply Flood 就是黑客发送大量 DNS reply 报文给 DNS 服务器，导致消耗大量缓存服务器资源，无法正常解析 DNS 授权服务器发送的 DNS reply报文。</p>
+<ul>
+<li><h4 id="源认证"><a href="#源认证" class="headerlink" title="源认证"></a>源认证</h4><p>DNS Reply Flood 的源 IP 地址通常是伪造的，所以可以通过判断源 IP 地址的真假来防范攻击。这种方式通过构造一个 DNS request报文进行认证。</p>
+<ul>
+<li>DNS reply 报文超过阈值，收到 DNS reply 报文后会重新构造一个 DNS request 报文，并记录构造查询报文的Query ID和源端口号。</li>
+<li>如果是真实源，则会回应 DNS reply 报文，如果与之前记录的 Query ID 和源端口号匹配成功，则加入白名单，认证成功。之后发送的报文直接通过。</li>
+<li>如果是虚假源，则不会回应这个 DNS request 报文，认证不通过。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://forum.huawei.com/huaweiconnect/data/attachment/forum/201801/29/20180129110247726.png" alt="20180129110247726.png"></p>
+<ul>
+<li><p>DNS 反射攻击</p>
+<p>一种更高级的 DNS Reply Flood，攻击目标是客户端而不是 DNS 缓存服务器，并且 DNS 请求是真实的</p>
+<ul>
+<li><h4 id="会话检查"><a href="#会话检查" class="headerlink" title="会话检查"></a>会话检查</h4><p>利用防火墙的会话表机制，DNS 交互过程中，DNS request 报文首包建立会话，保存五元组信息。当收到 DNS reply 报文时，匹配会话表，如果命中才允许通过。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="利用限速防范-DNS-Request-Flood-和-DNS-reply攻击"><a href="#利用限速防范-DNS-Request-Flood-和-DNS-reply攻击" class="headerlink" title="利用限速防范 DNS Request Flood 和 DNS reply攻击"></a>利用限速防范 DNS Request Flood 和 DNS reply攻击</h3><ul>
+<li><p>域名限速</p>
+<p>如果某个域名的DNS请求或回应报文速率过高，可以针对这个域名进行限速。</p>
+</li>
+<li><p>源 IP 地址限速</p>
+<p>如果某个源IP地址域名解析的速率过大，就可以有针对性的对这个源IP地址进行限制，这样也不会对其他源有影响。</p>
+</li>
+</ul>
+<h3 id="DNS-缓存投毒攻击"><a href="#DNS-缓存投毒攻击" class="headerlink" title="DNS 缓存投毒攻击"></a>DNS 缓存投毒攻击</h3>]]></content>
+      <tags>
+        <tag>DNS</tag>
+        <tag>DDos</tag>
+        <tag>Web安全</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>ES2020新特性</title>
     <url>/uncategorized/ES2020%E6%96%B0%E7%89%B9%E6%80%A7/</url>
     <content><![CDATA[<p>[TOC]</p>
@@ -78,7 +116,7 @@
       </tags>
   </entry>
   <entry>
-    <title>ES2020新特性</title>
+    <title>ant-design-vue 插槽使用</title>
     <url>/uncategorized/ant-design%20vue%20%E6%8F%92%E6%A7%BD%E4%BD%BF%E7%94%A8/</url>
     <content><![CDATA[<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;a-table :columns=<span class="string">&quot;columns&quot;</span> :dataSource=<span class="string">&quot;dataList&quot;</span> :loading=<span class="string">&quot;loading&quot;</span> :pagination=<span class="string">&quot;false&quot;</span> :rowKey=<span class="string">&quot;(record,index) =&gt; index&quot;</span>&gt;</span><br><span class="line">        &lt;template slot=<span class="string">&quot;duty&quot;</span> slot-scope=<span class="string">&quot;text, record, index&quot;</span>&gt;</span><br><span class="line">            &lt;span v-<span class="keyword">if</span>=<span class="string">&quot;text == &#x27;general&#x27;&quot;</span>&gt;普通员工&lt;/span&gt;</span><br><span class="line">            &lt;span v-<span class="keyword">if</span>=<span class="string">&quot;text == &#x27;expert&#x27;&quot;</span>&gt;专家&lt;/span&gt;</span><br><span class="line">            &lt;span v-<span class="keyword">if</span>=<span class="string">&quot;text == &#x27;admin&#x27;&quot;</span>&gt;管理员&lt;/span&gt;</span><br><span class="line">        &lt;/template&gt;</span><br><span class="line">        &lt;template slot=<span class="string">&quot;status&quot;</span> slot-scope=<span class="string">&quot;text, record, index&quot;</span>&gt;</span><br><span class="line">            &lt;span v-<span class="keyword">if</span>=<span class="string">&quot;text == &#x27;1&#x27;&quot;</span>&gt;正常&lt;/span&gt;</span><br><span class="line">            &lt;span v-<span class="keyword">if</span>=<span class="string">&quot;text == &#x27;0&#x27;&quot;</span>&gt;失效&lt;/span&gt;</span><br><span class="line">        &lt;/template&gt;</span><br><span class="line">        &lt;template slot=<span class="string">&quot;action&quot;</span> slot-scope=<span class="string">&quot;text, record, index&quot;</span>&gt;</span><br><span class="line">            &lt;a-button type=<span class="string">&quot;primary&quot;</span> size=<span class="string">&quot;small&quot;</span> @click=<span class="string">&quot;editUser(record)&quot;</span>&gt;编辑&lt;/a-button&gt;</span><br><span class="line">        &lt;/template&gt;</span><br><span class="line">    &lt;/a-table&gt;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// script 部分</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="title">data</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> &#123;</span><br><span class="line">                columns:[</span><br><span class="line">			        &#123;</span><br><span class="line">			            title: <span class="string">&#x27;用户账号&#x27;</span>,</span><br><span class="line">			            dataIndex: <span class="string">&#x27;username&#x27;</span>,</span><br><span class="line">			        &#125;,</span><br><span class="line">			        &#123;</span><br><span class="line">			            title: <span class="string">&#x27;姓名&#x27;</span>,</span><br><span class="line">			            dataIndex: <span class="string">&#x27;name&#x27;</span>,</span><br><span class="line">			        &#125;,</span><br><span class="line">			        &#123;</span><br><span class="line">			            title: <span class="string">&#x27;角色&#x27;</span>,</span><br><span class="line">			            dataIndex: <span class="string">&#x27;duty&#x27;</span>,</span><br><span class="line">			            scopedSlots: &#123;<span class="attr">customRender</span>: <span class="string">&#x27;duty&#x27;</span>&#125;</span><br><span class="line">			        &#125;,</span><br><span class="line">			        &#123;</span><br><span class="line">			            title: <span class="string">&#x27;状态&#x27;</span>,</span><br><span class="line">			            dataIndex: <span class="string">&#x27;status&#x27;</span>,</span><br><span class="line">			            scopedSlots: &#123;<span class="attr">customRender</span>: <span class="string">&#x27;status&#x27;</span>&#125;</span><br><span class="line">			        &#125;,</span><br><span class="line">			        &#123;</span><br><span class="line">			            title: <span class="string">&#x27;操作&#x27;</span>,</span><br><span class="line">			            dataIndex: <span class="string">&#x27;action&#x27;</span>,</span><br><span class="line">			            scopedSlots: &#123;<span class="attr">customRender</span>: <span class="string">&#x27;action&#x27;</span>&#125;,</span><br><span class="line">			        &#125;],</span><br><span class="line">                dataList: [],</span><br><span class="line">                loading: <span class="literal">false</span>,</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="function"><span class="title">created</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">            <span class="built_in">this</span>.getList()</span><br><span class="line">        &#125;,</span><br><span class="line">        methods: &#123;</span><br><span class="line">         <span class="function"><span class="title">getList</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">                <span class="built_in">this</span>.loading = <span class="literal">true</span>;</span><br><span class="line">                <span class="built_in">this</span>.$http.get(<span class="string">&#x27;/getUsers.do&#x27;</span>).then(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">                    <span class="function"><span class="title">if</span>(<span class="params">res</span>)</span>&#123;</span><br><span class="line">                        <span class="built_in">this</span>.dataList = res || []</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="built_in">this</span>.loading = <span class="literal">false</span>;</span><br><span class="line">                &#125;).catch(<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">                    <span class="built_in">console</span>.log(err)</span><br><span class="line">                &#125;)</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="function"><span class="title">editUser</span>(<span class="params">record</span>)</span>&#123;</span><br><span class="line">                <span class="built_in">this</span>.$refs.addModal.showModal(record)</span><br><span class="line">            &#125;,</span><br><span class="line">      	&#125;</span><br><span class="line"><span class="number">123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566</span></span><br></pre></td></tr></table></figure>
 
@@ -154,5 +192,21 @@
       <tags>
         <tag>test</tag>
       </tags>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/uncategorized/web%E5%AE%89%E5%85%A8/</url>
+    <content><![CDATA[<h3 id="浏览器账号密码自动保存"><a href="#浏览器账号密码自动保存" class="headerlink" title="浏览器账号密码自动保存"></a>浏览器账号密码自动保存</h3><p>在用户在web页面登录时，浏览器会问用户是否保存账号密码，如果用户点击保存，那么在下次登录的时候可能会出现下面两种情况：</p>
+<ol>
+<li>账号密码手动回填</li>
+</ol>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201027102122167.png" alt="image-20201027102122167"></p>
+<ol start="2">
+<li><p>账号密码自动回填</p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201027102412090.png" alt="image-20201027102412090"></p>
+</li>
+</ol>
+<p>如果用户在公共电脑上顺手点了保存，那么之后使用此电脑的人就很容易获取到用户的账号信息。虽然这样的设计方便了用户登录，但也很容易导致安全隐患。</p>
+<h4 id="页面的处理方式"><a href="#页面的处理方式" class="headerlink" title="页面的处理方式"></a>页面的处理方式</h4>]]></content>
   </entry>
 </search>
