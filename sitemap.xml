@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>https://123wuyujuan.github.io/uncategorized/ant-design%20vue%20%E6%8F%92%E6%A7%BD%E4%BD%BF%E7%94%A8/</loc>
+    
+    <lastmod>2020-10-20</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://123wuyujuan.github.io/uncategorized/newpaper/</loc>
+    
+    <lastmod>2020-10-19</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://123wuyujuan.github.io/uncategorized/hexo-%E9%94%99%E8%AF%AF/</loc>
+    
+    <lastmod>2020-10-19</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://123wuyujuan.github.io/uncategorized/hello-world/</loc>
+    
+    <lastmod>2020-10-19</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://123wuyujuan.github.io/uncategorized/ES2020%E6%96%B0%E7%89%B9%E6%80%A7/</loc>
+    
+    <lastmod>2020-10-19</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://123wuyujuan.github.io/about/index.html</loc>
+    
+    <lastmod>2020-10-18</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://123wuyujuan.github.io/gallery/index.html</loc>
+    
+    <lastmod>2020-10-17</lastmod>
+    
+  </url>
+  
+
+  <url>
+    <loc>https://123wuyujuan.github.io/</loc>
+    <lastmod>2020-10-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  
+  <url>
+    <loc>https://123wuyujuan.github.io/tags/JavaScript/</loc>
+    <lastmod>2020-10-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://123wuyujuan.github.io/tags/vue/</loc>
+    <lastmod>2020-10-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://123wuyujuan.github.io/tags/hexo/</loc>
+    <lastmod>2020-10-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://123wuyujuan.github.io/tags/test/</loc>
+    <lastmod>2020-10-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+
+  
+</urlset>
