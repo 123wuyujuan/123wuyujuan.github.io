@@ -70,14 +70,11 @@
 
                                 
 
-                                    <div class="article-entry" itemprop="articleBody">
-                                        
-
-
-                                            
-
-                                                
-                                                                    <p>[TOC]</p>
+                                <div class="article-entry" itemprop="articleBody">
+                                    
+                                      
+                                      
+                                        <p>[TOC]</p>
 <h3 id="Dynamic-import"><a href="#Dynamic-import" class="headerlink" title="Dynamic import"></a>Dynamic import</h3><p>不同于 <code>ECMAScript2015</code> 中的静态引入模块，<code>Dynamic import</code> 提供了<strong>按需引入</strong>、<strong>计算模块名称</strong>和<strong>脚本内部执行</strong>，并返回一个<code>promise</code></p>
 <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> modulePage = <span class="string">&#x27;page.js&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span>(modulePage)</span><br><span class="line">    .then(<span class="function">(<span class="params"><span class="built_in">module</span></span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">module</span>.default();</span><br><span class="line">    &#125;);</span><br><span class="line">(<span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> helpersModule = <span class="string">&#x27;helpers.js&#x27;</span>;</span><br><span class="line">  <span class="keyword">const</span> <span class="built_in">module</span> = <span class="keyword">await</span> <span class="keyword">import</span>(helpersModule)</span><br><span class="line">  <span class="keyword">const</span> total = <span class="built_in">module</span>.sum(<span class="number">2</span>, <span class="number">2</span>);</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
 
@@ -147,10 +144,11 @@
 <h4 id="与可选链式操作符之间的关系"><a href="#与可选链式操作符之间的关系" class="headerlink" title="与可选链式操作符之间的关系"></a>与可选链式操作符之间的关系</h4><p>空值合并操作符针对 <code>undefined</code> 与 <code>null</code> 这两个值，可选链式操作符（<code>?.</code>） 也是如此。在这访问属性可能为 <code>undefined</code> 与 <code>null</code> 的对象时，可选链式操作符非常有用。</p>
 <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> foo = &#123; <span class="attr">someFooProp</span>: <span class="string">&quot;hi&quot;</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(foo.someFooProp?.toUpperCase()); <span class="comment">// &quot;HI&quot;</span></span><br><span class="line"><span class="built_in">console</span>.log(foo.someBarProp?.toUpperCase()); <span class="comment">// undefined</span></span><br></pre></td></tr></table></figure>
 
-                                                                        
-                                    </div>
+                                      
+                                    
+                                  </div>
                                     <footer class="article-footer">
-                                        <a data-url="https://123wuyujuan.github.io/uncategorized/ES2020%E6%96%B0%E7%89%B9%E6%80%A7/" data-id="ckgsw57ea0003q0sf2bjybol5" class="article-share-link">
+                                        <a data-url="https://123wuyujuan.github.io/uncategorized/ES2020%E6%96%B0%E7%89%B9%E6%80%A7/" data-id="ckgt29lze00035gsf4sqeg5p5" class="article-share-link">
                                             Share
                                         </a>
                                         
