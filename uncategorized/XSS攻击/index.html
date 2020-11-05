@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+    <meta name="description" content="唐泽雪穗的个人网站">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    用HTML和JavaScript模拟XSS攻击 |
+    
+    唐泽雪穗</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="唐泽雪穗" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  <article id="post-XSS攻击" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+  
+    <h1 class="article-title" itemprop="name">
+      用HTML和JavaScript模拟XSS攻击
+    </h1>
+  
+  
+
+
+
+
+            </header>
+            
+
+                
+                    <div class="article-meta">
+                        <a href="/uncategorized/XSS%E6%94%BB%E5%87%BB/" class="article-date">
+  <time datetime="2020-10-29T09:49:48.249Z" itemprop="datePublished">2020-10-29</time>
+</a>
+                            
+                    </div>
+                    
+
+                        
+                            
+    <div class="tocbot"></div>
+
+
+
+
+
+                                
+
+                                <div class="article-entry" itemprop="articleBody">
+                                    
+                                      
+                                      
+                                        <p>HTML文件：</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;utf-8&quot;</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">title</span>&gt;</span><span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">form</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;input&quot;</span>/&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">onclick</span>=<span class="string">&quot;onSubmit(input.value)&quot;</span> <span class="attr">value</span>=<span class="string">&quot;提交&quot;</span>/&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- &lt;script src=&quot;./xss.js&quot;&gt;&lt;/script&gt; --&gt;</span></span><br><span class="line">	</span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line">	</span><br><span class="line"><span class="javascript">	<span class="function"><span class="keyword">function</span> <span class="title">onSubmit</span>(<span class="params">value</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">		<span class="built_in">document</span>.write(value)</span></span><br><span class="line"><span class="javascript">		<span class="built_in">console</span>.log(value)</span></span><br><span class="line">	&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后在网页中的 input 框输入普通字符串：</p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201029175836887.png" alt="image-20201029175836887"></p>
+<p>网页上显示正常字符串 123 </p>
+<p>接着输入 JavaScript 代码：<code>&lt;script&gt;alert(&#39;XSS攻击&#39;)&lt;/script&gt;</code></p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201029180138872.png" alt="image-20201029180138872"></p>
+<p>提交之后显示：</p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201029180209237.png" alt="image-20201029180209237"></p>
+<p>打开调试页面：</p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201029180342204.png" alt="image-20201029180342204"></p>
+<p>甚至可以从远端加载 JavaScript 文件进行攻击，我这里加载的是同级目录下的 xss.js 文件：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// xss.js</span></span><br><span class="line"><span class="keyword">let</span> i = <span class="number">5</span></span><br><span class="line"><span class="function"><span class="title">while</span>(<span class="params">i &gt; <span class="number">1</span></span>)</span>&#123;</span><br><span class="line">	alert(<span class="string">&#x27;反射型XSS攻击&#x27;</span>)</span><br><span class="line">	i--</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输入框中输入 <code>&lt;script src=&quot;./xss.js&quot;&gt;&lt;/script&gt;</code>，提交后会显示4次警告框：</p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201029180755869.png" alt="image-20201029180755869"></p>
+<h4 id="XSS-注入的方法"><a href="#XSS-注入的方法" class="headerlink" title="XSS 注入的方法"></a><strong>XSS 注入的方法</strong></h4><ul>
+<li>HTML 内嵌文本中，以 script 标签注入代码</li>
+<li>在内联 JavaScript 中，拼接的数据突破了原本的限制</li>
+<li>在标签属性中，恶意内容包含引号，突破属性值的限制，注入其他属性或标签</li>
+<li>在标签的 href 、src 属性中，包含 <code>javascript:</code>可执行代码</li>
+<li>在 <code>onload</code> <code>onerror</code> <code>onclick</code>等事件中，注入不受控制的代码</li>
+<li><code>background-image:url(&quot;javascript:...&quot;);</code> 的代码（新版本浏览器已经可以防范）</li>
+<li>在 style 属性和标签中，包含类似 <code>expression(...)</code> 的 CSS 表达式代码（新版本浏览器已经可以防范）</li>
+</ul>
+<h4 id="XSS-攻击分类"><a href="#XSS-攻击分类" class="headerlink" title="XSS 攻击分类"></a>XSS 攻击分类</h4><ul>
+<li><p>存储型</p>
+<p>攻击步骤：</p>
+<ol>
+<li>攻击者将恶意代码<strong>提交到目标网站的数据库</strong>中。</li>
+<li><strong>用户打开目标网站时，网站服务端将恶意代码从数据库取出</strong>，拼接在 HTML 中返回给浏览器。</li>
+<li>用户浏览器接收到响应后解析执行，混在其中的恶意代码也被执行。</li>
+<li>恶意代码窃取用户数据并发送到攻击者的网站，或者冒充用户的行为，调用目标网站接口执行攻击者指定的操作。</li>
+</ol>
+<p><strong>常见于带有用户保存数据的网站功能，如论坛发帖、商品评论、用户私信等</strong></p>
+</li>
+<li><p>反射型</p>
+<p>攻击步骤：</p>
+<ol>
+<li>攻击者构造出特殊的 URL，其中包含恶意代码。</li>
+<li><strong>用户打开带有恶意代码的 URL 时，网站服务端将恶意代码从 URL 中取出</strong>，拼接在 HTML 中返回给浏览器。</li>
+<li>用户浏览器接收到响应后解析执行，混在其中的恶意代码也被执行。</li>
+<li>恶意代码窃取用户数据并发送到攻击者的网站，或者冒充用户的行为，调用目标网站接口执行攻击者指定的操作</li>
+</ol>
+<p><strong>常见于通过 URL 传递参数的功能，如网站搜索、跳转等</strong></p>
+</li>
+<li><p>DOM 型</p>
+<p>攻击步骤：</p>
+<ol>
+<li><p>攻击者构造出特殊的 URL，其中包含恶意代码。</p>
+</li>
+<li><p>用户打开带有恶意代码的 URL。</p>
+</li>
+<li><p><strong>用户浏览器接收到响应后解析执行，前端 JavaScript 取出 URL 中的恶意代码并执行</strong>。</p>
+</li>
+<li><p>恶意代码窃取用户数据并发送到攻击者的网站，或者冒充用户的行为，调用目标网站接口执行攻击者指定的操作。</p>
+</li>
+</ol>
+</li>
+</ul>
+<p>  <strong>DOM 型 XSS 跟前两种 XSS 的区别：</strong>DOM 型 XSS 攻击中，取出和执行恶意代码由浏览器端完成，属于前端 JavaScript 自身的安全漏洞，而其他两种 XSS 都属于服务端的安全漏洞。</p>
+<h4 id="XSS-攻击防范"><a href="#XSS-攻击防范" class="headerlink" title="XSS 攻击防范"></a><strong>XSS 攻击防范</strong></h4><p>XSS 攻击的本质是：恶意代码未经过滤，与正常的代码混在一起被执行，由于直接在终端执行，所以能够直接获取用户信息，或者利用这些信息冒充用户发起请求</p>
+<p>来源：</p>
+<ul>
+<li><strong>来自用户的 UGC 信息</strong></li>
+<li><strong>来自第三方的链接</strong></li>
+<li><strong>URL 参数</strong></li>
+<li><strong>POST 参数</strong></li>
+<li><strong>Referer （可能来自不可信的来源）</strong></li>
+<li><strong>Cookie （可能来自其他子域注入）</strong></li>
+</ul>
+<p>大致过程为：攻击者提交恶意代码，浏览器执行恶意代码</p>
+<h5 id="前端过滤用户输入"><a href="#前端过滤用户输入" class="headerlink" title="前端过滤用户输入"></a>前端过滤用户输入</h5><p>一旦绕过前端过滤，直接构造请求，就无法防范</p>
+<h5 id="后端过滤用户输入"><a href="#后端过滤用户输入" class="headerlink" title="后端过滤用户输入"></a>后端过滤用户输入</h5><ol>
+<li><p>用户的输入内容可能同时提供给前端和客户端，而一旦经过了 <code>escapeHTML()</code>，客户端显示的内容就变成了乱码( <code>5 &lt; 7</code> )。</p>
+</li>
+<li><p>在前端中，不同的位置所需的编码也不同。</p>
+<ul>
+<li>当 <code>5 &lt; 7</code> 作为 HTML 拼接页面时，可以正常显示：</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">title</span>=<span class="string">&quot;comment&quot;</span>&gt;</span>5 <span class="symbol">&amp;lt;</span> 7<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>当 <code>5 &lt; 7</code> 通过 Ajax 返回，然后赋值给 JavaScript 的变量时，前端得到的字符串就是转义后的字符。这个内容不能直接用于 Vue 等模板的展示，也不能直接用于内容长度计算。不能用于标题、alert 等。</li>
+</ul>
+</li>
+</ol>
+<p>所以，输入侧过滤能够在某些情况下解决特定的 XSS 问题，但会引入很大的不确定性和乱码问题。在防范 XSS 攻击时应避免此类方法。但对于数字、url、电话邮件地址等可以进行过滤。</p>
+<h5 id="防止浏览器执行恶意代码"><a href="#防止浏览器执行恶意代码" class="headerlink" title="防止浏览器执行恶意代码"></a>防止浏览器执行恶意代码</h5><p><strong>存储型和反射型 XSS 攻击</strong></p>
+<ul>
+<li><p>纯前端渲染</p>
+<p>明确告诉浏览器下面的内容是文本（<code>.innerText</code>），还是属性（<code>.setAttribute</code>），样式（<code>.style</code>）</p>
+<p>无法预防 DOM 型 XSS 漏洞 （<code>onload</code> 、<code>onerror</code> 、<code>href:javascript:xxx</code>）</p>
+</li>
+<li><p>HTML 转义</p>
+<p> 采用转移策略，对特殊字符进行转义。转义库：<code>org.owasp.encoder</code></p>
+</li>
+</ul>
+<p><strong>DOM 型 XSS 攻击</strong></p>
+<p>小心使用<code>.innerHTML</code>、<code>.outerHTML</code>、<code>document.write()</code>，尽量用 <code>.textContent</code>、<code>setAttribute()</code>。</p>
+<ul>
+<li>如果用 Vue/React 技术栈，并且不使用 <code>v-html</code>/<code>dangerouslySetInnerHTML</code> 功能，就在前端 render 阶段避免 <code>innerHTML</code>、<code>outerHTML</code> 的 XSS 隐患</li>
+</ul>
+<h4 id="其他防范方法"><a href="#其他防范方法" class="headerlink" title="其他防范方法"></a>其他防范方法</h4><h5 id="Content-Security-Policy"><a href="#Content-Security-Policy" class="headerlink" title="Content Security Policy"></a><strong>Content Security Policy</strong></h5><p>严格的 CSP 在 XSS 的防范中可以起到以下的作用：</p>
+<ul>
+<li>禁止加载外域代码，防止复杂的攻击逻辑。</li>
+<li>禁止外域提交，网站被攻击后，用户的数据不会泄露到外域。</li>
+<li>禁止内联脚本执行（规则较严格，目前发现 GitHub 使用）。</li>
+<li>禁止未授权的脚本执行（新特性，Google Map 移动版在使用）。</li>
+<li>合理使用上报可以及时发现 XSS，利于尽快修复问题。</li>
+</ul>
+<h5 id="输入内容长度控制"><a href="#输入内容长度控制" class="headerlink" title="输入内容长度控制"></a>输入内容长度控制</h5><p>对于不受信任的输入，都应该限定一个合理的长度。虽然无法完全防止 XSS 发生，但可以增加 XSS 攻击的难度。</p>
+<h5 id="HTTP-only-Cookie"><a href="#HTTP-only-Cookie" class="headerlink" title="HTTP-only Cookie"></a>HTTP-only Cookie</h5><p>禁止 JavaScript 读取敏感 Cookie，让攻击者注入后无法取得 Cookie。</p>
+<h5 id="验证码"><a href="#验证码" class="headerlink" title="验证码"></a>验证码</h5><p>防止脚本冒充用户。</p>
+<h4 id="XSS-漏洞检测"><a href="#XSS-漏洞检测" class="headerlink" title="XSS 漏洞检测"></a>XSS 漏洞检测</h4><ul>
+<li><p>手动检测</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">jaVasCript:/*-/*`/*\`/*&#x27;/*&quot;/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//&lt;/stYle/&lt;/titLe/&lt;/teXtarEa/&lt;/scRipt/--!&gt;\x3csVg/&lt;sVg/oNloAd=alert()//&gt;\x3e</span><br></pre></td></tr></table></figure>
+
+<p>在输入框中提交或者拼接到 url 参数上进行检测</p>
+</li>
+<li><p>自动扫描</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/Arachni/arachni">Arachni</a>、<a target="_blank" rel="noopener" href="https://github.com/mozilla/http-observatory/">Mozilla HTTP Observatory</a>、<a target="_blank" rel="noopener" href="https://github.com/andresriancho/w3af">w3af</a> </li>
+</ul>
+</li>
+</ul>
+
+                                      
+                                    
+                                  </div>
+                                    <footer class="article-footer">
+                                        <a data-url="https://123wuyujuan.github.io/uncategorized/XSS%E6%94%BB%E5%87%BB/" data-id="ckgyjzika000178sfa1d09ojw" class="article-share-link">
+                                            Share
+                                        </a>
+                                        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web%E5%AE%89%E5%85%A8/" rel="tag">Web安全</a></li></ul>
+
+                                    </footer>
+
+    </div>
+
+    
+        
+  <nav class="article-nav">
+    
+      <a href="/uncategorized/CSRF%E6%94%BB%E5%87%BB/" class="article-nav-link">
+        <strong class="article-nav-caption">Newer</strong>
+        <div class="article-nav-title">
+          
+            CSRF攻击和防范
+          
+        </div>
+      </a>
+    
+    
+      <a href="/uncategorized/web%E5%AE%89%E5%85%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">解决方法：浏览器账号密码自动保存</div>
+      </a>
+    
+  </nav>
+
+
+            
+
+                <!-- 
+                    
+                        
+                             -->
+                            
+    
+      
+    
+</article>
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2020 唐泽雪穗</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a target="_blank" rel="noopener" href="https://github.com/zhwangart/hexo-theme-ocean">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="唐泽雪穗"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/gallery">Gallery</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+  <script>
+  // 使用fancybox来显示post图片集(#andus-head-img为头像id)
+  $('img:not(#andus-head-img)').each(function() {
+    $(this).wrap('<a class="fancybox" data-fancybox="gallery" href="' + $(this).prop("src") + '"></a>'); 
+  })
+  </script>
+  
+
+</body>
+</html>

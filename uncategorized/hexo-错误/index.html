@@ -137,11 +137,14 @@
 
             
 
-                
+                <!-- 
                     
                         
+                             -->
                             
-
+    
+      
+    
 </article>
 </section>
   <footer class="footer">
@@ -261,6 +264,14 @@
 
 <script src="/js/ocean.js"></script>
 
+
+  <script>
+  // 使用fancybox来显示post图片集(#andus-head-img为头像id)
+  $('img:not(#andus-head-img)').each(function() {
+    $(this).wrap('<a class="fancybox" data-fancybox="gallery" href="' + $(this).prop("src") + '"></a>'); 
+  })
+  </script>
+  
 
 </body>
 </html>
