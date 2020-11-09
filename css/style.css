@@ -1095,6 +1095,7 @@ img {
 @media (min-width: 768px) {
   .jumbotron {
     margin-bottom: 6rem;
+    display: block;
   }
   .content {
     margin-right: 10rem;
@@ -1119,6 +1120,11 @@ img {
 @media (min-width: 1200px) {
   .tocbot {
     display: block;
+  }
+}
+@media (max-width: 768px) {
+  .jumbotron {
+    display: none;
   }
 }
 .list-unstyled,
@@ -1403,6 +1409,12 @@ img {
   width: 100%;
   height: 100%;
   margin-top: 0;
+}
+.article-entry blockquote {
+  border-left: 0.3rem #42b983 solid;
+}
+.article-entry code {
+  color: #d63200;
 }
 .article-header {
   position: relative;
@@ -1828,6 +1840,9 @@ a.toc-link {
 .articles .article-entry .article-gallery {
   margin-top: 1.5rem;
 }
+.articles .article-entry blockquote {
+  border-left: 0.3rem #42b983 solid;
+}
 .archives-wrap {
   position: relative;
 }
@@ -2107,7 +2122,7 @@ pre .constant {
 pre .class,
 pre .ruby .class .title,
 pre .css .rules .attribute {
-  color: #9c9;
+  color: #42b983;
 }
 pre .string,
 pre .value,
@@ -2115,7 +2130,7 @@ pre .inheritance,
 pre .header,
 pre .ruby .symbol,
 pre .xml .cdata {
-  color: #9c9;
+  color: #42b983;
 }
 pre .css .hexcolor {
   color: #6cc;

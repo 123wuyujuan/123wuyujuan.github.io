@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+    <meta name="description" content="唐泽雪穗的个人网站">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    Git 常用命令和问题 |
+    
+    唐泽雪穗</title>
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="唐泽雪穗" type="application/atom+xml">
+</head>
+
+<body>
+<main class="content">
+  <section class="outer">
+  <article id="post-Git 常见操作和问题" class="article article-type-post" itemscope itemprop="blogPost" data-scroll-reveal>
+
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+  
+    <h1 class="article-title" itemprop="name">
+      Git 常用命令和问题
+    </h1>
+  
+  
+
+
+
+
+            </header>
+            
+
+                
+                    <div class="article-meta">
+                        <a href="/uncategorized/Git%20%E5%B8%B8%E8%A7%81%E6%93%8D%E4%BD%9C%E5%92%8C%E9%97%AE%E9%A2%98/" class="article-date">
+  <time datetime="2020-11-06T03:41:41.000Z" itemprop="datePublished">2020-11-06</time>
+</a>
+                            
+                    </div>
+                    
+
+                        
+                            
+    <div class="tocbot"></div>
+
+
+
+
+
+                                
+
+                                <div class="article-entry" itemprop="articleBody">
+                                    
+                                      
+                                      
+                                        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>文章记录自己对 Git 操作的理解，和一些在使用过程中遇到的问题和解决方法，不定时更新</p>
+<hr>
+<h2 id="Git-常用命令"><a href="#Git-常用命令" class="headerlink" title="Git 常用命令"></a>Git 常用命令</h2><ul>
+<li><p><strong>查看分支</strong></p>
+<blockquote>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git branch</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p><strong>创建分支</strong></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git checkout -b newbranch</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p><strong>切换分支</strong></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git checkout newbranch</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p><strong>添加到暂存区</strong></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git add &lt;file&gt;</span><br><span class="line">git add .</span><br></pre></td></tr></table></figure>
+
+<p>这两个一个是添加单个文件，一个是添加所有改动的文件，如果改动的文件多，可以先使用第二个命令添加所有文件，然后再 使用 <code>git restore &lt;file&gt;</code> 将不需要提交修改的文件移出来。</p>
+</blockquote>
+</li>
+<li><p><strong>提交代码</strong></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git commit -m &quot;feat: xxx&quot;</span><br></pre></td></tr></table></figure>
+
+<p>新功能可以用feat，对原来代码的修改可以用 fix，具体的规范可以参照</p>
+</blockquote>
+</li>
+<li><p><strong>本地合并代码</strong></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git checkout newbranch</span><br><span class="line">git merge origin&#x2F;develop</span><br></pre></td></tr></table></figure>
+
+<p>这两个命令将本地的 develop 分支代码合并到 newbranch 分支</p>
+</blockquote>
+</li>
+<li><p><strong>删除本地分支</strong></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git branch -d &lt;name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>强制删除：<code>git branch -D &lt;name&gt;</code></p>
+</blockquote>
+</li>
+<li><p><strong>删除远端分支</strong></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git branch -a 查看远端和本地的所有分支</span><br><span class="line">git push origin :远端分支 push一个空的到远端分支，注意origin 后面的空格</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+</ul>
+<h2 id="git-准备开发的流程"><a href="#git-准备开发的流程" class="headerlink" title="git 准备开发的流程"></a>git 准备开发的流程</h2><ol>
+<li><p>本地切换到 develop 分支，将远程 develop 分支拉到本地，合并 （*develop)</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git pull origin develop</span><br></pre></td></tr></table></figure>
+
+<p>合并如果有冲突，<code>git status</code>、 <code>git diff</code> 看是哪些文件有冲突，到文件里解决冲突，再<code>git reset --merge</code></p>
+</blockquote>
+</li>
+<li><p>在 develop 上分出一个开发分支 <code>xxx</code>  (*develop)</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git checkout -b xxx</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>切换到 xxx 分支进行开发 (*xxx)</p>
+</li>
+</ol>
+<h2 id="开发完毕提交操作"><a href="#开发完毕提交操作" class="headerlink" title="开发完毕提交操作"></a>开发完毕提交操作</h2><ol>
+<li><p>切换到 develop 分支，如果提示没有 commit 或者 stash 就 stash</p>
+</li>
+<li><p>在 develop 分支上拉取远端最新的代码</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git pull origin develop</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>切换到开发分支 <code>xxx</code>，将 develop 分支里最新的代码合并到开发分支</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git checkout xxx</span><br><span class="line">git merge origin&#x2F;develop</span><br></pre></td></tr></table></figure>
+
+<p>如果有冲突，解决冲突重新合并</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git reset --merge</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>提交开发分支中的改动</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git add &lt;file&gt;</span><br><span class="line">git commit -m &quot;feat: xxx&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>在开发分支中 git log 时有之前的提交记录是正常的，提交到远端的新分支之后有之前的提交记录也是正常的，不要慌。</strong>创建 MergeRequest 的时候就只有这一次推送的提交了</p>
+<p>如果add错了一个文件，<code>git restore --staged</code> 可以撤销这个文件的</p>
+</blockquote>
+</li>
+<li><p>推送到远端</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git push origin xxx:yyy</span><br></pre></td></tr></table></figure>
+
+<p>使用这个命令后，会将本地的 xxx 分支推送远端自动新建的 yyy 分支</p>
+<p>推送的是距离你从本次开发开始的提交记录，比如从远端拉下来合并之后有了commit1, commit2, commit3 这几个提交记录，本次开发过程中提交了两次：commit4 和 commit5，那么推送的也就是这两个记录，在创建 Merge Request 的时候 commits 也是 2</p>
+</blockquote>
+</li>
+<li><p>创建 Issue 和 MergeRequest</p>
+<p>Issue 可以不在这个时候创建，开发功能之前就可以创建了，意味着自己要开发新功能了</p>
+<p>MergeRequest 就是合并请求，我这里是新功能分支 合并到 develop 分支，merge 之后自动删除 userperm 分支。具体的看公司要求。</p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201106094925485.png" alt="image-20201106094925485"></p>
+</li>
+</ol>
+<h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a><strong>Q&amp;A</strong></h2><h3 id="已经-commit-但没有push-，想要撤销本次提交，但要保留代码修改？"><a href="#已经-commit-但没有push-，想要撤销本次提交，但要保留代码修改？" class="headerlink" title="已经 commit 但没有push ，想要撤销本次提交，但要保留代码修改？"></a><strong>已经 commit 但没有push ，想要撤销本次提交，但要保留代码修改？</strong></h3><blockquote>
+<p>使用 <code>git log</code> 打印提交记录，看到如下提交信息</p>
+</blockquote>
+<p><img src="http://qjd5jli58.hn-bkt.clouddn.com/img/image-20201106095904118.jpg" alt="image-20201106095904118"></p>
+<blockquote>
+<p>现在，我们想要撤销第一个和第二个提交记录，但又不想代码也跟着回滚，于是，我们可以用<code>git reset --soft HEAD^</code> 命令来撤销第一个提交，也就是<code>bcee1b</code> 的提交，然后再用一次 <code>git reset --soft HEAD^</code> 就成功撤销这两个记录了。</p>
+</blockquote>
+<p>你也可以使用<code>git reset --soft HEAD~2</code> 来一次性撤销两个提交记录，现在，我们使用 <code>git log</code> 查看提交记录：</p>
+<p>可以看到已经撤销了两次提交。</p>
+<p><strong>使用这个命令，git add 操作不会被撤销</strong>，使用 <code>git status</code> 查看状态，之前 add 的记录还在：</p>
+<p>![image][2]</p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201106101956645.png" alt="image-20201106101956645"></p>
+<h3 id="撤销提交记录的同时不保留代码修改怎么做？"><a href="#撤销提交记录的同时不保留代码修改怎么做？" class="headerlink" title="撤销提交记录的同时不保留代码修改怎么做？"></a>撤销提交记录的同时不保留代码修改怎么做？</h3><p>使用 <code>git reset --hard HEAD^</code> 就可以办到。这个命令会删除改动的代码，撤销 commit 和 add，恢复到上一次的 commit 状态。</p>
+<h3 id="恢复到上一次提交记录之后又后悔了怎么办？"><a href="#恢复到上一次提交记录之后又后悔了怎么办？" class="headerlink" title="恢复到上一次提交记录之后又后悔了怎么办？"></a>恢复到上一次提交记录之后又后悔了怎么办？</h3><p>刚刚使用了 <code>git reset --hard HEAD^</code> 命令恢复了上一次的 commit 状态，同时代码也没有被保存，如果后悔了，可以使用 <code>git reflog</code> 命令查看之前所有的提交记录和操作记录，找到需要恢复的那个版本，复制前面的 commitID，例如我们想要回到bcee1b4 这个版本：</p>
+<p>![image][3]</p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201106102813045.png"></p>
+<p>使用命令，然后查看 提交记录：</p>
+<p>![image][4]</p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201106103257356.png" alt="image-20201106103257356"></p>
+<p>又回来了。</p>
+<h3 id="在-commit-的时候写错注释了怎么办？"><a href="#在-commit-的时候写错注释了怎么办？" class="headerlink" title="在 commit 的时候写错注释了怎么办？"></a>在 commit 的时候写错注释了怎么办？</h3><blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git commit --amend</span><br></pre></td></tr></table></figure>
+
+<p>这个命令会默认进入 vim 编辑器，修改好注释之后保存就可以了。</p>
+</blockquote>
+<h3 id="已经-push-到远端还没合并，需要修改代码"><a href="#已经-push-到远端还没合并，需要修改代码" class="headerlink" title="已经 push 到远端还没合并，需要修改代码"></a>已经 push 到远端还没合并，需要修改代码</h3><p>如果已经将本地的开发分支 push 到远端，但是这个时候不管出于什么原因需要修改代码，但是修改好了之后提交到远端，发起 MergeRequest 的时候是没有原来的提交记录的。比如我第一次 push 的时候有 commit-1 的记录，现在在本地改了代码，有了 commit-2 的记录，然后 push 到了一个新的远端分支 zzz ，在这个新的分支上再建一个 Merge Request，那么这个 MergeRequest 里面就只有一个 commit。</p>
+<p>可以参考第一个问题，在本地撤销前面的 commit 但保留更改，然后重新提交，这样下一次提交就包含了两次的修改。</p>
+<p>或者也可以在修改代码之后 push 到远端上一次push 的 yyy 分支上，这样远端就有了两个 commit ，看自己的需求。</p>
+<h3 id="如何同步远程已删除的分支"><a href="#如何同步远程已删除的分支" class="headerlink" title="如何同步远程已删除的分支"></a>如何同步远程已删除的分支</h3><h4 id="删除远端多余分支"><a href="#删除远端多余分支" class="headerlink" title="删除远端多余分支"></a>删除远端多余分支</h4><blockquote>
+<p>使用 <code>git branch -a</code> 命令查看本地和远程的所有分支，红色部分就是远端分支</p>
+</blockquote>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201106111008267.png" alt="image-20201106111008267"></p>
+<p>可以看到，有的远端分支明明已经删除了，但本地并没有同步过来。</p>
+<blockquote>
+<p>使用 <code>git remote show origin</code> 命令查看本地分支和远端分支的追踪情况</p>
+</blockquote>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201106111605075.png"></p>
+<p>根据提示，可以使用 <code>git remote prune</code> 命令来同步删除这些分支。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git remote prune</span><br></pre></td></tr></table></figure>
+
+<p>再次查看就已经删除这些多余的分支了image-20201106111856467](C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201106111856467.png)</p>
+<h4 id="删除本地多余分支"><a href="#删除本地多余分支" class="headerlink" title="删除本地多余分支"></a>删除本地多余分支</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git branch -D feature&#x2F;chatfix</span><br></pre></td></tr></table></figure>
+
+<p>[]: </p>
+
+                                      
+                                    
+                                  </div>
+                                    <footer class="article-footer">
+                                        <a data-url="https://123wuyujuan.github.io/uncategorized/Git%20%E5%B8%B8%E8%A7%81%E6%93%8D%E4%BD%9C%E5%92%8C%E9%97%AE%E9%A2%98/" data-id="ckh5yhmtp0006eksf7s1i83wq" class="article-share-link">
+                                            Share
+                                        </a>
+                                        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Git/" rel="tag">Git</a></li></ul>
+
+                                    </footer>
+
+    </div>
+
+    
+        
+  <nav class="article-nav">
+    
+    
+      <a href="/uncategorized/CSRF%E6%94%BB%E5%87%BB/" class="article-nav-link">
+        <strong class="article-nav-caption">Older</strong>
+        <div class="article-nav-title">CSRF攻击和防范</div>
+      </a>
+    
+  </nav>
+
+
+            
+
+                <!-- 
+                    
+                        
+                             -->
+                            
+    
+      
+    
+</article>
+</section>
+  <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+    <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+    <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>&copy; 2020 唐泽雪穗</li>
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>Theme  <a target="_blank" rel="noopener" href="https://github.com/zhwangart/hexo-theme-ocean">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+
+</main>
+<aside class="sidebar">
+  <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+    <div class="logo">
+      <a href="/"><img src="/images/hexo.svg" alt="唐泽雪穗"></a>
+    </div>
+  
+  <ul class="nav nav-main">
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/">Home</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/archives">Archives</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/gallery">Gallery</a>
+      </li>
+    
+      <li class="nav-item">
+        <a class="nav-item-link" href="/about">About</a>
+      </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+        <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+          <i class="fe fe-feed"></i>
+        </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+</aside>
+
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="/js/tocbot.min.js"></script>
+
+  <script>
+    // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+    tocbot.init({
+      tocSelector: '.tocbot',
+      contentSelector: '.article-entry',
+      headingSelector: 'h1, h2, h3, h4, h5, h6',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      positionFixedSelector: '.tocbot',
+      positionFixedClass: 'is-position-fixed',
+      fixedSidebarOffset: 'auto',
+    });
+  </script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+
+  <script>
+  // 使用fancybox来显示post图片集(#andus-head-img为头像id)
+  $('img:not(#andus-head-img)').each(function() {
+    $(this).wrap('<a class="fancybox" data-fancybox="gallery" href="' + $(this).prop("src") + '"></a>'); 
+  })
+  </script>
+  
+
+</body>
+</html>

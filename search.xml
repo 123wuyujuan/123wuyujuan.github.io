@@ -1,6 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>CSRF攻击和防范</title>
+    <url>/uncategorized/CSRF%E6%94%BB%E5%87%BB/</url>
+    <content><![CDATA[<h1 id="CSRF-攻击方式"><a href="#CSRF-攻击方式" class="headerlink" title="CSRF 攻击方式"></a>CSRF 攻击方式</h1><p>CSRF 跨站请求伪造，通过诱导受害者进入第三方网站，在第三方网站中向被攻击网站发送跨站请求，利用受害者在被攻击网站已经获取的注册凭证，绕过后台用户验证，冒充用户操作。</p>
+<p>一个典型的CSRF攻击有着如下的流程：</p>
+<ul>
+<li>受害者登录a.com，并保留了登录凭证（Cookie）</li>
+<li>攻击者引诱受害者访问了b.com</li>
+<li>b.com 向 a.com 发送了一个请求：a.com/act=xx。浏览器会默认携带a.com的Cookie</li>
+<li>a.com接收到请求后，对请求进行验证，并确认是受害者的凭证，误以为是受害者自己发送的请求</li>
+<li>a.com以受害者的名义执行了act=xx</li>
+<li>攻击完成，攻击者在受害者不知情的情况下，冒充受害者，让a.com执行了自己定义的操作</li>
+</ul>
+<h1 id="防御方案"><a href="#防御方案" class="headerlink" title="防御方案"></a>防御方案</h1><p>CSRF 有三种防御方法：</p>
+<ul>
+<li>用户操作限制，验证码机制</li>
+<li>请求来源限制：限制 HTTP Referer</li>
+<li>Token 验证机制，请求数据字段中添加 token， 响应请求时校验其有效性</li>
+</ul>
+<p>对于第一种方案，影响用户体验，第二种方案成本低，但并不能保证 100% 安全， 第三种方案是目前最合适的方案。</p>
+<h1 id="HTTP-Referer-防御机制"><a href="#HTTP-Referer-防御机制" class="headerlink" title="HTTP Referer 防御机制"></a>HTTP Referer 防御机制</h1><p><strong>在 HTTP 头中有一个字段叫 Referer，它记录了该 HTTP 请求的来源地址。</strong>在通常情况下，访问一个安全受限页面的请求来自于同一个网站，如果黑客要对网站实施 CSRF 攻击，他只能在他自己的网站构造请求，当用户通过黑客的网站发送请求到正常网站时，该请求的 Referer 是指向黑客自己的网站。</p>
+<p>因此，只需要对每一个请求验证其 Referer 值，如果 Referer 是来自其他网站的话，就说明可能遭到了 CSRF 攻击，拒绝请求。</p>
+<h2 id="缺陷"><a href="#缺陷" class="headerlink" title="缺陷"></a>缺陷</h2><p><strong>使用验证 Referer 值的方法，就是把安全性都依赖于第三方（即浏览器）来保障，</strong>然而，每个浏览器产商对于 Referer 的实现可能会有差别，对于某些浏览器，比如 IE6 或 FF2，目前已经有一些方法可以篡改 Referer 值。</p>
+<p>即使使用最新的浏览器，用户仍然可以设置浏览器使其在发送请求时不再提供 Referer。因为有些用户认为记录访问来源会侵犯他们的隐私。当他们正常访问网站时，网站会因为请求没有 Referer 值而认为是 CSRF 攻击，拒绝合法用户的访问。</p>
+<h1 id="Token-验证机制防御"><a href="#Token-验证机制防御" class="headerlink" title="Token 验证机制防御"></a>Token 验证机制防御</h1><p>CSRF 攻击完全是因为黑客可以伪造用户的请求，请求中所有的用户验证信息全部存在 Cookie 中，黑客可以再不知道这些验证信息的情况下直接利用用户的 Cookie 通过验证。<strong>要抵御 CSRF，关键在于在请求中放入黑客所不能伪造的信息，并且该信息不存在于 cookie 之中。</strong></p>
+<h2 id="在-HTTP-头中加入自定义属性"><a href="#在-HTTP-头中加入自定义属性" class="headerlink" title="在 HTTP 头中加入自定义属性"></a>在 HTTP 头中加入自定义属性</h2><p>可以在 HTTP 请求中加入一个随机产生的 token，放到自定义的属性里，并在服务器端建立一个拦截器来验证这个 token，如果请求中没有 token 或者 token 内容不正确，则认为可能是 CSRF 攻击而拒绝该请求。</p>
+<ol>
+<li>后端随机生成一个 Token 并保存在 Session 中，并把这个 Token 返回给前端</li>
+<li>前端发起请求时把 Token 带到请求数据或者请求头中发送给后端</li>
+<li>后端校验前端传入的 Token  和后端 Session 中的 Token 是否一致</li>
+</ol>
+<h2 id="NodeJS-下的-Token-验证"><a href="#NodeJS-下的-Token-验证" class="headerlink" title="NodeJS 下的 Token 验证"></a>NodeJS 下的 Token 验证</h2><p>NodeJS 不具备 Session 的功能，可以借助 Cookie 来传送 Token</p>
+<ol>
+<li>后端随机生成一个 Token，基于这个 Token 利用 SHA-56 等散列算法生成密文</li>
+<li>后端将 Token 和生成的密文都设置为 Cookie，并返回给前端</li>
+<li>前端发请求时，从 Cookie 中获取 Token，把 Token 加入请求数据或请求头</li>
+<li>后端校验 Cookie 中的密文和前端请求带过来的 Token，进行正向散列验证</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>web安全</tag>
+        <tag>前端</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>DNS攻击</title>
     <url>/uncategorized/DNS%E6%94%BB%E5%87%BB/</url>
     <content><![CDATA[<h3 id="DNS-request-Flood-攻击"><a href="#DNS-request-Flood-攻击" class="headerlink" title="DNS request Flood 攻击"></a>DNS request Flood 攻击</h3><h3 id="DNS-Reply-Flood-攻击"><a href="#DNS-Reply-Flood-攻击" class="headerlink" title="DNS Reply Flood 攻击"></a>DNS Reply Flood 攻击</h3><p>DNS 查询通常基于 UDP 协议，而 UDP 协议是无连接的，当 DNS 服务器收到 DNS reply报文时，不管自己有没有发出过解析请求，都会对 DNS reply 报文进行处理。DNS Reply Flood 就是黑客发送大量 DNS reply 报文给 DNS 服务器，导致消耗大量缓存服务器资源，无法正常解析 DNS 授权服务器发送的 DNS reply报文。</p>
@@ -116,149 +160,165 @@
       </tags>
   </entry>
   <entry>
-    <title>ant-design-vue 插槽使用</title>
-    <url>/uncategorized/ant-design%20vue%20%E6%8F%92%E6%A7%BD%E4%BD%BF%E7%94%A8/</url>
-    <content><![CDATA[<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a-table</span> <span class="attr">:columns</span>=<span class="string">&quot;columns&quot;</span> <span class="attr">:dataSource</span>=<span class="string">&quot;dataList&quot;</span> <span class="attr">:loading</span>=<span class="string">&quot;loading&quot;</span> <span class="attr">:pagination</span>=<span class="string">&quot;false&quot;</span> <span class="attr">:rowKey</span>=<span class="string">&quot;(record,index) =&gt; index&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">template</span> <span class="attr">slot</span>=<span class="string">&quot;duty&quot;</span> <span class="attr">slot-scope</span>=<span class="string">&quot;text, record, index&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">span</span> <span class="attr">v-if</span>=<span class="string">&quot;text == &#x27;general&#x27;&quot;</span>&gt;</span>普通员工<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">span</span> <span class="attr">v-if</span>=<span class="string">&quot;text == &#x27;expert&#x27;&quot;</span>&gt;</span>专家<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">span</span> <span class="attr">v-if</span>=<span class="string">&quot;text == &#x27;admin&#x27;&quot;</span>&gt;</span>管理员<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">template</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">template</span> <span class="attr">slot</span>=<span class="string">&quot;status&quot;</span> <span class="attr">slot-scope</span>=<span class="string">&quot;text, record, index&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">span</span> <span class="attr">v-if</span>=<span class="string">&quot;text == &#x27;1&#x27;&quot;</span>&gt;</span>正常<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">span</span> <span class="attr">v-if</span>=<span class="string">&quot;text == &#x27;0&#x27;&quot;</span>&gt;</span>失效<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">template</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">template</span> <span class="attr">slot</span>=<span class="string">&quot;action&quot;</span> <span class="attr">slot-scope</span>=<span class="string">&quot;text, record, index&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">a-button</span> <span class="attr">type</span>=<span class="string">&quot;primary&quot;</span> <span class="attr">size</span>=<span class="string">&quot;small&quot;</span> @<span class="attr">click</span>=<span class="string">&quot;editUser(record)&quot;</span>&gt;</span>编辑<span class="tag">&lt;/<span class="name">a-button</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">template</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">a-table</span>&gt;</span></span><br><span class="line">    </span><br></pre></td></tr></table></figure>
-
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// script 部分</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">data</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">            columns:[</span><br><span class="line">       &#123;</span><br><span class="line">           title: <span class="string">&#x27;用户账号&#x27;</span>,</span><br><span class="line">           dataIndex: <span class="string">&#x27;username&#x27;</span>,</span><br><span class="line">       &#125;,</span><br><span class="line">       &#123;</span><br><span class="line">           title: <span class="string">&#x27;姓名&#x27;</span>,</span><br><span class="line">           dataIndex: <span class="string">&#x27;name&#x27;</span>,</span><br><span class="line">       &#125;,</span><br><span class="line">       &#123;</span><br><span class="line">           title: <span class="string">&#x27;角色&#x27;</span>,</span><br><span class="line">           dataIndex: <span class="string">&#x27;duty&#x27;</span>,</span><br><span class="line">           scopedSlots: &#123;<span class="attr">customRender</span>: <span class="string">&#x27;duty&#x27;</span>&#125;</span><br><span class="line">       &#125;,</span><br><span class="line">       &#123;</span><br><span class="line">           title: <span class="string">&#x27;状态&#x27;</span>,</span><br><span class="line">           dataIndex: <span class="string">&#x27;status&#x27;</span>,</span><br><span class="line">           scopedSlots: &#123;<span class="attr">customRender</span>: <span class="string">&#x27;status&#x27;</span>&#125;</span><br><span class="line">       &#125;,</span><br><span class="line">       &#123;</span><br><span class="line">           title: <span class="string">&#x27;操作&#x27;</span>,</span><br><span class="line">           dataIndex: <span class="string">&#x27;action&#x27;</span>,</span><br><span class="line">           scopedSlots: &#123;<span class="attr">customRender</span>: <span class="string">&#x27;action&#x27;</span>&#125;,</span><br><span class="line">       &#125;],</span><br><span class="line">            dataList: [],</span><br><span class="line">            loading: <span class="literal">false</span>,</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="function"><span class="title">created</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="built_in">this</span>.getList()</span><br><span class="line">    &#125;,</span><br><span class="line">    methods: &#123;</span><br><span class="line">     <span class="function"><span class="title">getList</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">            <span class="built_in">this</span>.loading = <span class="literal">true</span>;</span><br><span class="line">            <span class="built_in">this</span>.$http.get(<span class="string">&#x27;/getUsers.do&#x27;</span>).then(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">                <span class="function"><span class="title">if</span>(<span class="params">res</span>)</span>&#123;</span><br><span class="line">                    <span class="built_in">this</span>.dataList = res || []</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="built_in">this</span>.loading = <span class="literal">false</span>;</span><br><span class="line">            &#125;).catch(<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">                <span class="built_in">console</span>.log(err)</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="function"><span class="title">editUser</span>(<span class="params">record</span>)</span>&#123;</span><br><span class="line">            <span class="built_in">this</span>.$refs.addModal.showModal(record)</span><br><span class="line">        &#125;,</span><br><span class="line">  	&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h5 id="1-columns-定义table-表头-以及和-dataList-的字段对应"><a href="#1-columns-定义table-表头-以及和-dataList-的字段对应" class="headerlink" title="1.columns 定义table 表头,以及和 dataList 的字段对应,"></a>1.columns 定义table 表头,以及和 dataList 的字段对应,</h5><h5 id="2-dataSource-为数据源-是一个数组"><a href="#2-dataSource-为数据源-是一个数组" class="headerlink" title="2. dataSource 为数据源,是一个数组,"></a>2. dataSource 为数据源,是一个数组,</h5><h5 id="3-loading-加载时loading-数据请求前设置-true-请求完成后设置-false"><a href="#3-loading-加载时loading-数据请求前设置-true-请求完成后设置-false" class="headerlink" title="3.loading 加载时loading,数据请求前设置 true,请求完成后设置 false,"></a>3.loading 加载时loading,数据请求前设置 true,请求完成后设置 false,</h5><h5 id="4-插槽的使用"><a href="#4-插槽的使用" class="headerlink" title="4.插槽的使用"></a>4.插槽的使用</h5><p>很多情况下,后端返回的数据是 数字,前端需要展示文字,这事使用插槽就会非常方便<br>1.首先,在 columns 中需要的部分添加 scopedSlots: {customRender: ‘status’}<br>2.table 中添加标签</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;template slot=<span class="string">&quot;status&quot;</span> slot-scope=<span class="string">&quot;text, record, index&quot;</span>&gt;</span><br><span class="line">   &lt;span v-<span class="keyword">if</span>=<span class="string">&quot;text == &#x27;1&#x27;&quot;</span>&gt;正常&lt;/span&gt;</span><br><span class="line">    &lt;span v-<span class="keyword">if</span>=<span class="string">&quot;text == &#x27;0&#x27;&quot;</span>&gt;失效&lt;/span&gt;</span><br><span class="line">&lt;/template&gt;</span><br><span class="line"><span class="number">1234</span></span><br></pre></td></tr></table></figure>
-
-<p>customRender 的值和slot 的值相对应,slot-scope 中 text就是status的值(text可以自定义,key,item都可以), record 代表text所在的对象,可以通过 record 拿到该行的其他值. 比如</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="title">editUser</span>(<span class="params">record</span>)</span>&#123;</span><br><span class="line">   <span class="built_in">this</span>.$refs.addModal.showModal(record)</span><br><span class="line">&#125;,</span><br><span class="line"><span class="number">123</span></span><br></pre></td></tr></table></figure>
-
-<p>把record作为参数传递,编辑改用户信息.</p>
-]]></content>
-      <tags>
-        <tag>JavaScript</tag>
-        <tag>vue</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/uncategorized/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-<p>good luck!</p>
-]]></content>
-  </entry>
-  <entry>
-    <title>【解决方法】hexo g 报错 &quot;OperationalError:&#39; EPERM:&#39;  operation not permitted, unlink …&quot;</title>
-    <url>/uncategorized/hexo-%E9%94%99%E8%AF%AF/</url>
-    <content><![CDATA[<p>运行 hexo g 报错如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">FATAL &#123;</span><br><span class="line">  err: [OperationalError: EPERM: operation not permitted, unlink &#39;F:\blog\public\uncategorized\newpaper&#39;] &#123;</span><br><span class="line">    cause: [Error: EPERM: operation not permitted, unlink &#39;F:\blog\public\uncategorized\newpaper&#39;] &#123;</span><br><span class="line">      errno: -4048,</span><br><span class="line">      code: &#39;EPERM&#39;,</span><br><span class="line">      syscall: &#39;unlink&#39;,</span><br><span class="line">      path: &#39;F:\\blog\\public\\uncategorized\\newpaper&#39;</span><br><span class="line">    &#125;,</span><br><span class="line">    isOperational: true,</span><br><span class="line">    errno: -4048,</span><br><span class="line">    code: &#39;EPERM&#39;,</span><br><span class="line">    syscall: &#39;unlink&#39;,</span><br><span class="line">    path: &#39;F:\\blog\\public\\uncategorized\\newpaper&#39;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>网上的解决办法：</p>
-<ol>
-<li><h4 id="权限不够，cmd-使用管理员打开"><a href="#权限不够，cmd-使用管理员打开" class="headerlink" title="权限不够，cmd 使用管理员打开"></a>权限不够，cmd 使用管理员打开</h4><p>无法解决</p>
+    <title>Git 常用命令和问题</title>
+    <url>/uncategorized/Git%20%E5%B8%B8%E8%A7%81%E6%93%8D%E4%BD%9C%E5%92%8C%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>文章记录自己对 Git 操作的理解，和一些在使用过程中遇到的问题和解决方法，不定时更新</p>
+<hr>
+<h2 id="Git-常用命令"><a href="#Git-常用命令" class="headerlink" title="Git 常用命令"></a>Git 常用命令</h2><ul>
+<li><p><strong>查看分支</strong></p>
+<blockquote>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git branch</span><br></pre></td></tr></table></figure>
+</blockquote>
 </li>
-<li><h4 id="删除-C-Users-用户-下-npmrc-文件"><a href="#删除-C-Users-用户-下-npmrc-文件" class="headerlink" title="删除 C:\Users\用户 下 .npmrc 文件"></a>删除 <code>C:\Users\用户</code> 下 <code>.npmrc</code> 文件</h4><p><strong>无法解决</strong></p>
-</li>
-<li><h4 id="清除缓存"><a href="#清除缓存" class="headerlink" title="清除缓存"></a>清除缓存</h4><p>使用 <code>npm clean cache --force</code> 清除缓存</p>
-<p>删除 <code>package-lock.json</code> 文件</p>
-<p>使用 <code>npm install</code> 重新安装</p>
-<p><strong>无法解决</strong></p>
-</li>
-<li><h4 id="删除-node-modules-目录"><a href="#删除-node-modules-目录" class="headerlink" title="删除 node_modules 目录"></a>删除<code> node_modules</code> 目录</h4><p><strong>无法解决</strong></p>
-</li>
-</ol>
-<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><p>   网上几乎全是针对 npm 的解决方法，而我的错误是在执行 <code>hexo g</code>  遇到的，且在官网上也没找到解决办法，最后尝试 <strong>删除 F:\blog\public\ 下对应的目录</strong> ，重新 <code>hexo g</code> 就不会报错了</p>
-<p>   他在错误中已经提示了：</p>
-   <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">err: [OperationalError: EPERM: operation not permitted, unlink &#39;F:\blog\public\uncategorized\newpaper&#39;]</span><br></pre></td></tr></table></figure>
-
-
-
-<p>   我一开始把 newpaper 文件删除了，但是他又会报另外 uncategorized 下的另一个文件的错，所以需要删除 uncategorized 整个目录，大家根据自己的情况删除就行了，我这个目录下的文件都是根据 source/_posts/ 生成的，删除之后再执行命令 <code>hexo g</code> 会重新生成的~</p>
-]]></content>
-      <tags>
-        <tag>hexo</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>newpaper</title>
-    <url>/uncategorized/newpaper/</url>
-    <content><![CDATA[<p>my first blog!!<br>I’m so excited!!!</p>
-]]></content>
-      <tags>
-        <tag>test</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>解决方法：浏览器账号密码自动保存</title>
-    <url>/uncategorized/web%E5%AE%89%E5%85%A8/</url>
-    <content><![CDATA[<h3 id="浏览器账号密码自动保存"><a href="#浏览器账号密码自动保存" class="headerlink" title="浏览器账号密码自动保存"></a>浏览器账号密码自动保存</h3><p>在用户在web页面登录时，浏览器会问用户是否保存账号密码，如果用户点击保存，那么在下次登录的时候可能会出现下面两种情况：</p>
-<ol>
-<li>账号密码手动回填</li>
-</ol>
-<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201027102122167.png" alt="image-20201027102122167"></p>
-<ol start="2">
-<li><p>账号密码自动回填</p>
-<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201027102412090.png" alt="image-20201027102412090"></p>
-</li>
-</ol>
-<p>如果用户在公共电脑上顺手点了保存，那么之后使用此电脑的人就很容易获取到用户的账号信息。虽然这样的设计方便了用户登录，但也很容易导致安全隐患。</p>
-<h4 id="页面的处理方式"><a href="#页面的处理方式" class="headerlink" title="页面的处理方式"></a>页面的处理方式</h4>]]></content>
-      <tags>
-        <tag>Web安全</tag>
-        <tag>前端</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CSRF攻击和防范</title>
-    <url>/uncategorized/CSRF%E6%94%BB%E5%87%BB/</url>
-    <content><![CDATA[<h1 id="CSRF-攻击方式"><a href="#CSRF-攻击方式" class="headerlink" title="CSRF 攻击方式"></a>CSRF 攻击方式</h1><p>CSRF 跨站请求伪造，通过诱导受害者进入第三方网站，在第三方网站中向被攻击网站发送跨站请求，利用受害者在被攻击网站已经获取的注册凭证，绕过后台用户验证，冒充用户操作。</p>
-<p>一个典型的CSRF攻击有着如下的流程：</p>
-<ul>
-<li>受害者登录a.com，并保留了登录凭证（Cookie）</li>
-<li>攻击者引诱受害者访问了b.com</li>
-<li>b.com 向 a.com 发送了一个请求：a.com/act=xx。浏览器会默认携带a.com的Cookie</li>
-<li>a.com接收到请求后，对请求进行验证，并确认是受害者的凭证，误以为是受害者自己发送的请求</li>
-<li>a.com以受害者的名义执行了act=xx</li>
-<li>攻击完成，攻击者在受害者不知情的情况下，冒充受害者，让a.com执行了自己定义的操作</li>
 </ul>
-<h1 id="防御方案"><a href="#防御方案" class="headerlink" title="防御方案"></a>防御方案</h1><p>CSRF 有三种防御方法：</p>
 <ul>
-<li>用户操作限制，验证码机制</li>
-<li>请求来源限制：限制 HTTP Referer</li>
-<li>Token 验证机制，请求数据字段中添加 token， 响应请求时校验其有效性</li>
+<li><p><strong>创建分支</strong></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git checkout -b newbranch</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
 </ul>
-<p>对于第一种方案，影响用户体验，第二种方案成本低，但并不能保证 100% 安全， 第三种方案是目前最合适的方案。</p>
-<h1 id="HTTP-Referer-防御机制"><a href="#HTTP-Referer-防御机制" class="headerlink" title="HTTP Referer 防御机制"></a>HTTP Referer 防御机制</h1><p><strong>在 HTTP 头中有一个字段叫 Referer，它记录了该 HTTP 请求的来源地址。</strong>在通常情况下，访问一个安全受限页面的请求来自于同一个网站，如果黑客要对网站实施 CSRF 攻击，他只能在他自己的网站构造请求，当用户通过黑客的网站发送请求到正常网站时，该请求的 Referer 是指向黑客自己的网站。</p>
-<p>因此，只需要对每一个请求验证其 Referer 值，如果 Referer 是来自其他网站的话，就说明可能遭到了 CSRF 攻击，拒绝请求。</p>
-<h2 id="缺陷"><a href="#缺陷" class="headerlink" title="缺陷"></a>缺陷</h2><p><strong>使用验证 Referer 值的方法，就是把安全性都依赖于第三方（即浏览器）来保障，</strong>然而，每个浏览器产商对于 Referer 的实现可能会有差别，对于某些浏览器，比如 IE6 或 FF2，目前已经有一些方法可以篡改 Referer 值。</p>
-<p>即使使用最新的浏览器，用户仍然可以设置浏览器使其在发送请求时不再提供 Referer。因为有些用户认为记录访问来源会侵犯他们的隐私。当他们正常访问网站时，网站会因为请求没有 Referer 值而认为是 CSRF 攻击，拒绝合法用户的访问。</p>
-<h1 id="Token-验证机制防御"><a href="#Token-验证机制防御" class="headerlink" title="Token 验证机制防御"></a>Token 验证机制防御</h1><p>CSRF 攻击完全是因为黑客可以伪造用户的请求，请求中所有的用户验证信息全部存在 Cookie 中，黑客可以再不知道这些验证信息的情况下直接利用用户的 Cookie 通过验证。<strong>要抵御 CSRF，关键在于在请求中放入黑客所不能伪造的信息，并且该信息不存在于 cookie 之中。</strong></p>
-<h2 id="在-HTTP-头中加入自定义属性"><a href="#在-HTTP-头中加入自定义属性" class="headerlink" title="在 HTTP 头中加入自定义属性"></a>在 HTTP 头中加入自定义属性</h2><p>可以在 HTTP 请求中加入一个随机产生的 token，放到自定义的属性里，并在服务器端建立一个拦截器来验证这个 token，如果请求中没有 token 或者 token 内容不正确，则认为可能是 CSRF 攻击而拒绝该请求。</p>
-<ol>
-<li>后端随机生成一个 Token 并保存在 Session 中，并把这个 Token 返回给前端</li>
-<li>前端发起请求时把 Token 带到请求数据或者请求头中发送给后端</li>
-<li>后端校验前端传入的 Token  和后端 Session 中的 Token 是否一致</li>
+<ul>
+<li><p><strong>切换分支</strong></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git checkout newbranch</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p><strong>添加到暂存区</strong></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git add &lt;file&gt;</span><br><span class="line">git add .</span><br></pre></td></tr></table></figure>
+
+<p>这两个一个是添加单个文件，一个是添加所有改动的文件，如果改动的文件多，可以先使用第二个命令添加所有文件，然后再 使用 <code>git restore &lt;file&gt;</code> 将不需要提交修改的文件移出来。</p>
+</blockquote>
+</li>
+<li><p><strong>提交代码</strong></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git commit -m &quot;feat: xxx&quot;</span><br></pre></td></tr></table></figure>
+
+<p>新功能可以用feat，对原来代码的修改可以用 fix，具体的规范可以参照</p>
+</blockquote>
+</li>
+<li><p><strong>本地合并代码</strong></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git checkout newbranch</span><br><span class="line">git merge origin&#x2F;develop</span><br></pre></td></tr></table></figure>
+
+<p>这两个命令将本地的 develop 分支代码合并到 newbranch 分支</p>
+</blockquote>
+</li>
+<li><p><strong>删除本地分支</strong></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git branch -d &lt;name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>强制删除：<code>git branch -D &lt;name&gt;</code></p>
+</blockquote>
+</li>
+<li><p><strong>删除远端分支</strong></p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git branch -a 查看远端和本地的所有分支</span><br><span class="line">git push origin :远端分支 push一个空的到远端分支，注意origin 后面的空格</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+</ul>
+<h2 id="git-准备开发的流程"><a href="#git-准备开发的流程" class="headerlink" title="git 准备开发的流程"></a>git 准备开发的流程</h2><ol>
+<li><p>本地切换到 develop 分支，将远程 develop 分支拉到本地，合并 （*develop)</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git pull origin develop</span><br></pre></td></tr></table></figure>
+
+<p>合并如果有冲突，<code>git status</code>、 <code>git diff</code> 看是哪些文件有冲突，到文件里解决冲突，再<code>git reset --merge</code></p>
+</blockquote>
+</li>
+<li><p>在 develop 上分出一个开发分支 <code>xxx</code>  (*develop)</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git checkout -b xxx</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>切换到 xxx 分支进行开发 (*xxx)</p>
+</li>
 </ol>
-<h2 id="NodeJS-下的-Token-验证"><a href="#NodeJS-下的-Token-验证" class="headerlink" title="NodeJS 下的 Token 验证"></a>NodeJS 下的 Token 验证</h2><p>NodeJS 不具备 Session 的功能，可以借助 Cookie 来传送 Token</p>
-<ol>
-<li>后端随机生成一个 Token，基于这个 Token 利用 SHA-56 等散列算法生成密文</li>
-<li>后端将 Token 和生成的密文都设置为 Cookie，并返回给前端</li>
-<li>前端发请求时，从 Cookie 中获取 Token，把 Token 加入请求数据或请求头</li>
-<li>后端校验 Cookie 中的密文和前端请求带过来的 Token，进行正向散列验证</li>
+<h2 id="开发完毕提交操作"><a href="#开发完毕提交操作" class="headerlink" title="开发完毕提交操作"></a>开发完毕提交操作</h2><ol>
+<li><p>切换到 develop 分支，如果提示没有 commit 或者 stash 就 stash</p>
+</li>
+<li><p>在 develop 分支上拉取远端最新的代码</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git pull origin develop</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>切换到开发分支 <code>xxx</code>，将 develop 分支里最新的代码合并到开发分支</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git checkout xxx</span><br><span class="line">git merge origin&#x2F;develop</span><br></pre></td></tr></table></figure>
+
+<p>如果有冲突，解决冲突重新合并</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git reset --merge</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>提交开发分支中的改动</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git add &lt;file&gt;</span><br><span class="line">git commit -m &quot;feat: xxx&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>在开发分支中 git log 时有之前的提交记录是正常的，提交到远端的新分支之后有之前的提交记录也是正常的，不要慌。</strong>创建 MergeRequest 的时候就只有这一次推送的提交了</p>
+<p>如果add错了一个文件，<code>git restore --staged</code> 可以撤销这个文件的</p>
+</blockquote>
+</li>
+<li><p>推送到远端</p>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git push origin xxx:yyy</span><br></pre></td></tr></table></figure>
+
+<p>使用这个命令后，会将本地的 xxx 分支推送远端自动新建的 yyy 分支</p>
+<p>推送的是距离你从本次开发开始的提交记录，比如从远端拉下来合并之后有了commit1, commit2, commit3 这几个提交记录，本次开发过程中提交了两次：commit4 和 commit5，那么推送的也就是这两个记录，在创建 Merge Request 的时候 commits 也是 2</p>
+</blockquote>
+</li>
+<li><p>创建 Issue 和 MergeRequest</p>
+<p>Issue 可以不在这个时候创建，开发功能之前就可以创建了，意味着自己要开发新功能了</p>
+<p>MergeRequest 就是合并请求，我这里是新功能分支 合并到 develop 分支，merge 之后自动删除 userperm 分支。具体的看公司要求。</p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201106094925485.png" alt="image-20201106094925485"></p>
+</li>
 </ol>
+<h2 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a><strong>Q&amp;A</strong></h2><h3 id="已经-commit-但没有push-，想要撤销本次提交，但要保留代码修改？"><a href="#已经-commit-但没有push-，想要撤销本次提交，但要保留代码修改？" class="headerlink" title="已经 commit 但没有push ，想要撤销本次提交，但要保留代码修改？"></a><strong>已经 commit 但没有push ，想要撤销本次提交，但要保留代码修改？</strong></h3><blockquote>
+<p>使用 <code>git log</code> 打印提交记录，看到如下提交信息</p>
+</blockquote>
+<p><img src="http://qjd5jli58.hn-bkt.clouddn.com/img/image-20201106095904118.jpg" alt="image-20201106095904118"></p>
+<blockquote>
+<p>现在，我们想要撤销第一个和第二个提交记录，但又不想代码也跟着回滚，于是，我们可以用<code>git reset --soft HEAD^</code> 命令来撤销第一个提交，也就是<code>bcee1b</code> 的提交，然后再用一次 <code>git reset --soft HEAD^</code> 就成功撤销这两个记录了。</p>
+</blockquote>
+<p>你也可以使用<code>git reset --soft HEAD~2</code> 来一次性撤销两个提交记录，现在，我们使用 <code>git log</code> 查看提交记录：</p>
+<p>可以看到已经撤销了两次提交。</p>
+<p><strong>使用这个命令，git add 操作不会被撤销</strong>，使用 <code>git status</code> 查看状态，之前 add 的记录还在：</p>
+<p>![image][2]</p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201106101956645.png" alt="image-20201106101956645"></p>
+<h3 id="撤销提交记录的同时不保留代码修改怎么做？"><a href="#撤销提交记录的同时不保留代码修改怎么做？" class="headerlink" title="撤销提交记录的同时不保留代码修改怎么做？"></a>撤销提交记录的同时不保留代码修改怎么做？</h3><p>使用 <code>git reset --hard HEAD^</code> 就可以办到。这个命令会删除改动的代码，撤销 commit 和 add，恢复到上一次的 commit 状态。</p>
+<h3 id="恢复到上一次提交记录之后又后悔了怎么办？"><a href="#恢复到上一次提交记录之后又后悔了怎么办？" class="headerlink" title="恢复到上一次提交记录之后又后悔了怎么办？"></a>恢复到上一次提交记录之后又后悔了怎么办？</h3><p>刚刚使用了 <code>git reset --hard HEAD^</code> 命令恢复了上一次的 commit 状态，同时代码也没有被保存，如果后悔了，可以使用 <code>git reflog</code> 命令查看之前所有的提交记录和操作记录，找到需要恢复的那个版本，复制前面的 commitID，例如我们想要回到bcee1b4 这个版本：</p>
+<p>![image][3]</p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201106102813045.png"></p>
+<p>使用命令，然后查看 提交记录：</p>
+<p>![image][4]</p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201106103257356.png" alt="image-20201106103257356"></p>
+<p>又回来了。</p>
+<h3 id="在-commit-的时候写错注释了怎么办？"><a href="#在-commit-的时候写错注释了怎么办？" class="headerlink" title="在 commit 的时候写错注释了怎么办？"></a>在 commit 的时候写错注释了怎么办？</h3><blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git commit --amend</span><br></pre></td></tr></table></figure>
+
+<p>这个命令会默认进入 vim 编辑器，修改好注释之后保存就可以了。</p>
+</blockquote>
+<h3 id="已经-push-到远端还没合并，需要修改代码"><a href="#已经-push-到远端还没合并，需要修改代码" class="headerlink" title="已经 push 到远端还没合并，需要修改代码"></a>已经 push 到远端还没合并，需要修改代码</h3><p>如果已经将本地的开发分支 push 到远端，但是这个时候不管出于什么原因需要修改代码，但是修改好了之后提交到远端，发起 MergeRequest 的时候是没有原来的提交记录的。比如我第一次 push 的时候有 commit-1 的记录，现在在本地改了代码，有了 commit-2 的记录，然后 push 到了一个新的远端分支 zzz ，在这个新的分支上再建一个 Merge Request，那么这个 MergeRequest 里面就只有一个 commit。</p>
+<p>可以参考第一个问题，在本地撤销前面的 commit 但保留更改，然后重新提交，这样下一次提交就包含了两次的修改。</p>
+<p>或者也可以在修改代码之后 push 到远端上一次push 的 yyy 分支上，这样远端就有了两个 commit ，看自己的需求。</p>
+<h3 id="如何同步远程已删除的分支"><a href="#如何同步远程已删除的分支" class="headerlink" title="如何同步远程已删除的分支"></a>如何同步远程已删除的分支</h3><h4 id="删除远端多余分支"><a href="#删除远端多余分支" class="headerlink" title="删除远端多余分支"></a>删除远端多余分支</h4><blockquote>
+<p>使用 <code>git branch -a</code> 命令查看本地和远程的所有分支，红色部分就是远端分支</p>
+</blockquote>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201106111008267.png" alt="image-20201106111008267"></p>
+<p>可以看到，有的远端分支明明已经删除了，但本地并没有同步过来。</p>
+<blockquote>
+<p>使用 <code>git remote show origin</code> 命令查看本地分支和远端分支的追踪情况</p>
+</blockquote>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201106111605075.png"></p>
+<p>根据提示，可以使用 <code>git remote prune</code> 命令来同步删除这些分支。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git remote prune</span><br></pre></td></tr></table></figure>
+
+<p>再次查看就已经删除这些多余的分支了image-20201106111856467](C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201106111856467.png)</p>
+<h4 id="删除本地多余分支"><a href="#删除本地多余分支" class="headerlink" title="删除本地多余分支"></a>删除本地多余分支</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git branch -D feature&#x2F;chatfix</span><br></pre></td></tr></table></figure>
+
+<p>[]: </p>
 ]]></content>
       <tags>
-        <tag>前端</tag>
-        <tag>web安全</tag>
+        <tag>Git</tag>
       </tags>
   </entry>
   <entry>
@@ -393,6 +453,108 @@
 </ul>
 ]]></content>
       <tags>
+        <tag>Web安全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ant-design-vue 插槽使用</title>
+    <url>/uncategorized/ant-design%20vue%20%E6%8F%92%E6%A7%BD%E4%BD%BF%E7%94%A8/</url>
+    <content><![CDATA[<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a-table</span> <span class="attr">:columns</span>=<span class="string">&quot;columns&quot;</span> <span class="attr">:dataSource</span>=<span class="string">&quot;dataList&quot;</span> <span class="attr">:loading</span>=<span class="string">&quot;loading&quot;</span> <span class="attr">:pagination</span>=<span class="string">&quot;false&quot;</span> <span class="attr">:rowKey</span>=<span class="string">&quot;(record,index) =&gt; index&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">template</span> <span class="attr">slot</span>=<span class="string">&quot;duty&quot;</span> <span class="attr">slot-scope</span>=<span class="string">&quot;text, record, index&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">span</span> <span class="attr">v-if</span>=<span class="string">&quot;text == &#x27;general&#x27;&quot;</span>&gt;</span>普通员工<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">span</span> <span class="attr">v-if</span>=<span class="string">&quot;text == &#x27;expert&#x27;&quot;</span>&gt;</span>专家<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">span</span> <span class="attr">v-if</span>=<span class="string">&quot;text == &#x27;admin&#x27;&quot;</span>&gt;</span>管理员<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">template</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">template</span> <span class="attr">slot</span>=<span class="string">&quot;status&quot;</span> <span class="attr">slot-scope</span>=<span class="string">&quot;text, record, index&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">span</span> <span class="attr">v-if</span>=<span class="string">&quot;text == &#x27;1&#x27;&quot;</span>&gt;</span>正常<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">span</span> <span class="attr">v-if</span>=<span class="string">&quot;text == &#x27;0&#x27;&quot;</span>&gt;</span>失效<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">template</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">template</span> <span class="attr">slot</span>=<span class="string">&quot;action&quot;</span> <span class="attr">slot-scope</span>=<span class="string">&quot;text, record, index&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">a-button</span> <span class="attr">type</span>=<span class="string">&quot;primary&quot;</span> <span class="attr">size</span>=<span class="string">&quot;small&quot;</span> @<span class="attr">click</span>=<span class="string">&quot;editUser(record)&quot;</span>&gt;</span>编辑<span class="tag">&lt;/<span class="name">a-button</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">template</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">a-table</span>&gt;</span></span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// script 部分</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">data</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">            columns:[</span><br><span class="line">       &#123;</span><br><span class="line">           title: <span class="string">&#x27;用户账号&#x27;</span>,</span><br><span class="line">           dataIndex: <span class="string">&#x27;username&#x27;</span>,</span><br><span class="line">       &#125;,</span><br><span class="line">       &#123;</span><br><span class="line">           title: <span class="string">&#x27;姓名&#x27;</span>,</span><br><span class="line">           dataIndex: <span class="string">&#x27;name&#x27;</span>,</span><br><span class="line">       &#125;,</span><br><span class="line">       &#123;</span><br><span class="line">           title: <span class="string">&#x27;角色&#x27;</span>,</span><br><span class="line">           dataIndex: <span class="string">&#x27;duty&#x27;</span>,</span><br><span class="line">           scopedSlots: &#123;<span class="attr">customRender</span>: <span class="string">&#x27;duty&#x27;</span>&#125;</span><br><span class="line">       &#125;,</span><br><span class="line">       &#123;</span><br><span class="line">           title: <span class="string">&#x27;状态&#x27;</span>,</span><br><span class="line">           dataIndex: <span class="string">&#x27;status&#x27;</span>,</span><br><span class="line">           scopedSlots: &#123;<span class="attr">customRender</span>: <span class="string">&#x27;status&#x27;</span>&#125;</span><br><span class="line">       &#125;,</span><br><span class="line">       &#123;</span><br><span class="line">           title: <span class="string">&#x27;操作&#x27;</span>,</span><br><span class="line">           dataIndex: <span class="string">&#x27;action&#x27;</span>,</span><br><span class="line">           scopedSlots: &#123;<span class="attr">customRender</span>: <span class="string">&#x27;action&#x27;</span>&#125;,</span><br><span class="line">       &#125;],</span><br><span class="line">            dataList: [],</span><br><span class="line">            loading: <span class="literal">false</span>,</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="function"><span class="title">created</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="built_in">this</span>.getList()</span><br><span class="line">    &#125;,</span><br><span class="line">    methods: &#123;</span><br><span class="line">     <span class="function"><span class="title">getList</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">            <span class="built_in">this</span>.loading = <span class="literal">true</span>;</span><br><span class="line">            <span class="built_in">this</span>.$http.get(<span class="string">&#x27;/getUsers.do&#x27;</span>).then(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">                <span class="function"><span class="title">if</span>(<span class="params">res</span>)</span>&#123;</span><br><span class="line">                    <span class="built_in">this</span>.dataList = res || []</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="built_in">this</span>.loading = <span class="literal">false</span>;</span><br><span class="line">            &#125;).catch(<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">                <span class="built_in">console</span>.log(err)</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="function"><span class="title">editUser</span>(<span class="params">record</span>)</span>&#123;</span><br><span class="line">            <span class="built_in">this</span>.$refs.addModal.showModal(record)</span><br><span class="line">        &#125;,</span><br><span class="line">  	&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="1-columns-定义table-表头-以及和-dataList-的字段对应"><a href="#1-columns-定义table-表头-以及和-dataList-的字段对应" class="headerlink" title="1.columns 定义table 表头,以及和 dataList 的字段对应,"></a>1.columns 定义table 表头,以及和 dataList 的字段对应,</h5><h5 id="2-dataSource-为数据源-是一个数组"><a href="#2-dataSource-为数据源-是一个数组" class="headerlink" title="2. dataSource 为数据源,是一个数组,"></a>2. dataSource 为数据源,是一个数组,</h5><h5 id="3-loading-加载时loading-数据请求前设置-true-请求完成后设置-false"><a href="#3-loading-加载时loading-数据请求前设置-true-请求完成后设置-false" class="headerlink" title="3.loading 加载时loading,数据请求前设置 true,请求完成后设置 false,"></a>3.loading 加载时loading,数据请求前设置 true,请求完成后设置 false,</h5><h5 id="4-插槽的使用"><a href="#4-插槽的使用" class="headerlink" title="4.插槽的使用"></a>4.插槽的使用</h5><p>很多情况下,后端返回的数据是 数字,前端需要展示文字,这事使用插槽就会非常方便<br>1.首先,在 columns 中需要的部分添加 scopedSlots: {customRender: ‘status’}<br>2.table 中添加标签</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;template slot=<span class="string">&quot;status&quot;</span> slot-scope=<span class="string">&quot;text, record, index&quot;</span>&gt;</span><br><span class="line">   &lt;span v-<span class="keyword">if</span>=<span class="string">&quot;text == &#x27;1&#x27;&quot;</span>&gt;正常&lt;/span&gt;</span><br><span class="line">    &lt;span v-<span class="keyword">if</span>=<span class="string">&quot;text == &#x27;0&#x27;&quot;</span>&gt;失效&lt;/span&gt;</span><br><span class="line">&lt;/template&gt;</span><br><span class="line"><span class="number">1234</span></span><br></pre></td></tr></table></figure>
+
+<p>customRender 的值和slot 的值相对应,slot-scope 中 text就是status的值(text可以自定义,key,item都可以), record 代表text所在的对象,可以通过 record 拿到该行的其他值. 比如</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="title">editUser</span>(<span class="params">record</span>)</span>&#123;</span><br><span class="line">   <span class="built_in">this</span>.$refs.addModal.showModal(record)</span><br><span class="line">&#125;,</span><br><span class="line"><span class="number">123</span></span><br></pre></td></tr></table></figure>
+
+<p>把record作为参数传递,编辑改用户信息.</p>
+]]></content>
+      <tags>
+        <tag>JavaScript</tag>
+        <tag>vue</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/uncategorized/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+<p>good luck!</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>【解决方法】hexo g 报错 &quot;OperationalError:&#39; EPERM:&#39;  operation not permitted, unlink …&quot;</title>
+    <url>/uncategorized/hexo-%E9%94%99%E8%AF%AF/</url>
+    <content><![CDATA[<p>运行 hexo g 报错如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">FATAL &#123;</span><br><span class="line">  err: [OperationalError: EPERM: operation not permitted, unlink &#39;F:\blog\public\uncategorized\newpaper&#39;] &#123;</span><br><span class="line">    cause: [Error: EPERM: operation not permitted, unlink &#39;F:\blog\public\uncategorized\newpaper&#39;] &#123;</span><br><span class="line">      errno: -4048,</span><br><span class="line">      code: &#39;EPERM&#39;,</span><br><span class="line">      syscall: &#39;unlink&#39;,</span><br><span class="line">      path: &#39;F:\\blog\\public\\uncategorized\\newpaper&#39;</span><br><span class="line">    &#125;,</span><br><span class="line">    isOperational: true,</span><br><span class="line">    errno: -4048,</span><br><span class="line">    code: &#39;EPERM&#39;,</span><br><span class="line">    syscall: &#39;unlink&#39;,</span><br><span class="line">    path: &#39;F:\\blog\\public\\uncategorized\\newpaper&#39;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>网上的解决办法：</p>
+<ol>
+<li><h4 id="权限不够，cmd-使用管理员打开"><a href="#权限不够，cmd-使用管理员打开" class="headerlink" title="权限不够，cmd 使用管理员打开"></a>权限不够，cmd 使用管理员打开</h4><p>无法解决</p>
+</li>
+<li><h4 id="删除-C-Users-用户-下-npmrc-文件"><a href="#删除-C-Users-用户-下-npmrc-文件" class="headerlink" title="删除 C:\Users\用户 下 .npmrc 文件"></a>删除 <code>C:\Users\用户</code> 下 <code>.npmrc</code> 文件</h4><p><strong>无法解决</strong></p>
+</li>
+<li><h4 id="清除缓存"><a href="#清除缓存" class="headerlink" title="清除缓存"></a>清除缓存</h4><p>使用 <code>npm clean cache --force</code> 清除缓存</p>
+<p>删除 <code>package-lock.json</code> 文件</p>
+<p>使用 <code>npm install</code> 重新安装</p>
+<p><strong>无法解决</strong></p>
+</li>
+<li><h4 id="删除-node-modules-目录"><a href="#删除-node-modules-目录" class="headerlink" title="删除 node_modules 目录"></a>删除<code> node_modules</code> 目录</h4><p><strong>无法解决</strong></p>
+</li>
+</ol>
+<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><p>   网上几乎全是针对 npm 的解决方法，而我的错误是在执行 <code>hexo g</code>  遇到的，且在官网上也没找到解决办法，最后尝试 <strong>删除 F:\blog\public\ 下对应的目录</strong> ，重新 <code>hexo g</code> 就不会报错了</p>
+<p>   他在错误中已经提示了：</p>
+   <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">err: [OperationalError: EPERM: operation not permitted, unlink &#39;F:\blog\public\uncategorized\newpaper&#39;]</span><br></pre></td></tr></table></figure>
+
+
+
+<p>   我一开始把 newpaper 文件删除了，但是他又会报另外 uncategorized 下的另一个文件的错，所以需要删除 uncategorized 整个目录，大家根据自己的情况删除就行了，我这个目录下的文件都是根据 source/_posts/ 生成的，删除之后再执行命令 <code>hexo g</code> 会重新生成的~</p>
+]]></content>
+      <tags>
+        <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>newpaper</title>
+    <url>/uncategorized/newpaper/</url>
+    <content><![CDATA[<p>my first blog!!<br>I’m so excited!!!</p>
+]]></content>
+      <tags>
+        <tag>test</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>解决方法：浏览器账号密码自动保存</title>
+    <url>/uncategorized/web%E5%AE%89%E5%85%A8/</url>
+    <content><![CDATA[<h3 id="浏览器账号密码自动保存"><a href="#浏览器账号密码自动保存" class="headerlink" title="浏览器账号密码自动保存"></a>浏览器账号密码自动保存</h3><p>在用户在web页面登录时，浏览器会问用户是否保存账号密码，如果用户点击保存，那么在下次登录的时候可能会出现下面两种情况：</p>
+<ol>
+<li>账号密码手动回填</li>
+</ol>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201027102122167.png" alt="image-20201027102122167"></p>
+<ol start="2">
+<li><p>账号密码自动回填</p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20201027102412090.png" alt="image-20201027102412090"></p>
+</li>
+</ol>
+<p>如果用户在公共电脑上顺手点了保存，那么之后使用此电脑的人就很容易获取到用户的账号信息。虽然这样的设计方便了用户登录，但也很容易导致安全隐患。</p>
+<h4 id="页面的处理方式"><a href="#页面的处理方式" class="headerlink" title="页面的处理方式"></a>页面的处理方式</h4>]]></content>
+      <tags>
+        <tag>前端</tag>
         <tag>Web安全</tag>
       </tags>
   </entry>
